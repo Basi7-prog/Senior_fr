@@ -8,10 +8,10 @@ function LoginForm() {
   const navigate = useNavigate();
   const onSubmit = async (data) => {
     console.log(data);
-    await Axios.post("http://localhost:5000/find", { data })
+    await Axios.post("/find", { data })
       .then((res) => {
         console.log(res.data);
-        navigate(`/it/${res.data.id}`);
+        navigate(`/it/${res.data.user.id}`);
       })
       .catch((err) => console.log(err));
   };

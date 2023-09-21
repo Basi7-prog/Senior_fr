@@ -16,12 +16,14 @@ const posts=[{
   userName:"basleal",
   post:"this is basleal"
 },{
-  userName:"eliyab",
+  userName:"nathnael",
   post:"this is eliyab"
 }]
 app.get("/l",authenticateToken, async (req, res) => {
-  console.log("fot here",req)
-  res.json(posts.filter(post=>post.userName==req.user.firstName))
+  console.log("got here",req)
+  const found=posts.find(post=>post.userName==req.user.firstName);
+  res.json(found==null?"none":found)
+  //res.send("yes")
 });
 
 app.post("/find", async (req, res) => {
@@ -39,7 +41,7 @@ app.post("/find", async (req, res) => {
   })
     .then((foundUser) => {
       accessToken = jwt.sign(user, process.env.JWT_SECRET);
-      res.json({accessToken:accessToken});
+      res.json({accessToken:accessToken,user:foundUser});
     })
     .catch((err) => console.log("error", err));
 
