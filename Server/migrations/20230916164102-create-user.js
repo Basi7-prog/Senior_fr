@@ -10,16 +10,49 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       firstName: {
+        allowNull:false,
         type: Sequelize.STRING
       },
       middleName: {
+        allowNull:false,
         type: Sequelize.STRING
       },
       lastName: {
+        allowNull:false,
+        type: Sequelize.STRING
+      },
+      gender: {
+        allowNull:false,
+        type: Sequelize.STRING(10)
+      },
+      phone: {
+        allowNull:false,
+        type: Sequelize.STRING
+      },
+      email: {
+        allowNull:false,
+        type: Sequelize.STRING
+      },
+      profession: {
+        allowNull:false,
+        type: Sequelize.STRING
+      },
+      userType: {
+        type: Sequelize.STRING
+      },
+      password: {
+        allowNull:false,
         type: Sequelize.STRING
       },
       Dob: {
+        allowNull:false,
         type: Sequelize.DATE
+      },
+      cpdId: {
+        type: Sequelize.INTEGER
+      },
+      departmentId: {
+        type: Sequelize.INTEGER
       },
       createdAt: {
         allowNull: false,
