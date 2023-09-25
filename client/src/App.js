@@ -1,3 +1,4 @@
+import Finance from "./finance/Finance";
 import LoginForm from "./first_login_form/LoginForm";
 import It from "./it_dashboard/It";
 import { BrowserRouter as Router, Route, Routes, Link } from "react-router-dom";
@@ -11,7 +12,8 @@ function App() {
         </header>
         <Routes>
           <Route path="/ilogin/" element={<LoginForm />} />
-          <Route path="/it/:id" element={<It />} />
+          <Route path="/it/:id" element={<It user=''/>} />
+          <Route path="/finance/:id" element={<Finance />} />
         </Routes>
       </div>
     </Router>

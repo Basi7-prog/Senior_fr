@@ -2,16 +2,19 @@ import { useForm } from "react-hook-form";
 import { useNavigate, Link } from "react-router-dom";
 import { useState } from "react";
 import Axios from "axios";
+import Cookies from "js-cookie";
+import { checkNavigator } from "./checkNavigator.js";
 
 function LoginForm() {
   const { register, handleSubmit } = useForm();
   const navigate = useNavigate();
   const onSubmit = async (data) => {
     console.log(data);
-    await Axios.post("/find", { data })
+    await Axios.post("/login", { data })
       .then((res) => {
         console.log(res.data);
-        navigate(`/it/${res.data.user.id}`);
+        Cookies.set("accessToken", res.data.accessToken, { expires: 1.0004 });
+        navigate(`/${checkNavigator(res.data.departments.name)}/${res.data.user.userName}`);
       })
       .catch((err) => console.log(err));
   };
@@ -19,7 +22,7 @@ function LoginForm() {
     <div className="">
       <header className="">
         <form onSubmit={handleSubmit(onSubmit)}>
-          <label>
+          <label className="">
             User Name:
             <input
               type="text"
