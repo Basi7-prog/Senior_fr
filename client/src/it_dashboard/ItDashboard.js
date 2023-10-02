@@ -8,8 +8,8 @@ function DIt(data) {
   const dropDownStyle =
     "border-[1px] border-borderc rounded-lg px-3 py-1 focus:drop-shadow-[0_0px_3px_#0582F5] focus:border-tenPer outline-0";
   const cookies = Cookies.get("accessToken");
-  const [allUsers, setallUsers] = useState("");
-  const [allUsersF, setallUsersF] = useState("");
+  const [allUsers, setallUsers] = useState([{}]);
+  const [allUsersF, setallUsersF] = useState([{}]);
   const [editClicked, seteditClicked] = useState("");
   // const [popupDisplay, setpopupDisplay] = useState(false);
   const childRef = useRef({});

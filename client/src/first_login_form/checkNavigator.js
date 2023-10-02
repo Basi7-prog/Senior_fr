@@ -1,5 +1,5 @@
 
-const deps=["system administrator","finance"]
+const deps=["system administrator","finance","logistics"]
 
 export function checkNavigator(role) {
   console.log("navigator",role)
@@ -8,6 +8,9 @@ export function checkNavigator(role) {
   }
   if (role.toLowerCase()==deps[1]) {
     return "finance";    
+  }
+  if (role.toLowerCase()==deps[2]) {
+    return "logistics";    
   }
   else{
     return "";

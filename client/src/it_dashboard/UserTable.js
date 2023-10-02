@@ -37,7 +37,7 @@ function UserTable(users) {
 }
 
 const populate = (users) => {
-  const colStyle = " py-3 px-2 cursor-pointer";
+  const colStyle = "text-center py-3 px-2 cursor-pointer";
   const clicked = (event) => {
     console.log("clicked ",event.target.id);
     users.onAction(event.target.id);

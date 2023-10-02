@@ -3,8 +3,9 @@ require("dotenv").config();
 const router = express.Router();
 const app = express();
 const cors = require("cors");
-const { User, Department } = require("./models");
+const { User, Department, Proposal } = require("./models");
 const jwt = require("jsonwebtoken");
+const proposal = require("./models/proposal");
 
 app.use(cors());
 app.use(express.json());
@@ -13,6 +14,111 @@ app.get("/", (req, res) => {
   res.send("heloo");
 });
 
+//get all proposals filterd for each department
+app.get("/fetchAllProposal", authenticateToken, async (req, res) => {
+  await Department.findOne({
+    where: { name: req.user.department },
+  }).then(async (depId) => {
+    console.log("\n\nfetch prposals...", req.user.department);
+    await Proposal.findAll({ where: { departmentId: depId.id } })
+      .then((resp) => {
+        if (resp.length>0) {
+          res.json({ resp, depDetail:{departmentId:resp.departmentId, depName: req.user.department} });
+        } else {
+          Department.findOne({
+            where: { name: req.user.department },
+          }).then((resDep)=>
+          res.json({resp, depDetail:{departmentId:resDep.id, depName: resDep.name} }));
+        }
+      })
+      .catch((err) => console.log(err));
+  });
+  //await Proposal.findAll({ where: { departmentId: id } }).then((resp)=>res.json(resp)).catch((err)=>console.log(err));
+});
+
+//fetch proposals which are null(approved/rejected), seen only for finance and logistics
+app.get("/fetchNullProposal", authenticateToken, async (req, res) => {
+  const isPrivilaged = req.user.department
+  const finLog=async()=>{
+  if (isPrivilaged == "Finance") {
+    return await Proposal.findAll({
+      where: { approveBudgetStatus: null },
+    });
+  }else{
+    return await Proposal.findAll({
+      where: { trainingTypeId: null },
+    });
+  }}
+
+  await Department.findAll().then(async (respn) => {
+    finLog()
+      .then((proposal) => {
+        const proposalWdep = proposal.map(
+          (props, i) =>
+            (proposal[i].dataValues.departmentName = respn.find(
+              (resDep) => resDep.id == proposal[i].dataValues.departmentId
+            ).name)
+        );
+        console.log("\n is precvilage?");
+        res.json({ nullProposal: proposal, department: req.user.department });
+      })
+      .catch((err) => console.log("\n error?", err));
+  });
+});
+
+//to approve budgets(by changing budget, assign date and status), for finance
+app.post("/proposalApprove", authenticateToken, (req, res) => {
+  if (req.user.department == "Finance") {
+    console.log(req.body);
+    Proposal.findOne({ where: { id: req.body.budget.id } }).then((approve) => {
+      approve.approveBudgetStatus = true;
+      approve.budget = req.body.budget.budget;
+      approve.budgetApprovedRejectedDate = new Date();
+      approve.save().then((acc) => {
+        console.log("acce");
+        res.json({});
+      });
+    });
+  }else if (req.user.department == "Logistics") {
+    console.log(req.body);
+    Proposal.findOne({ where: { id: req.body.budget.id } }).then((approve) => {
+      approve.trainingTypeId = req.body.tType;
+      approve.venueApprovedRejectedDate = new Date();
+      approve.save().then((acc) => {
+        console.log("logisti acce");
+        res.json({});
+      });
+    });
+  }
+});
+
+//to reject budgets(by changing budget, assign date and status), for finance
+app.post("/proposalReject", authenticateToken, (req, res) => {
+  if (req.user.department == "Finance") {
+    console.log(req.body);
+    Proposal.findOne({ where: { id: req.body.id } }).then((approve) => {
+      approve.approveBudgetStatus = false;
+      approve.budgetApprovedRejectedDate = new Date();
+
+      approve.save().then((acc) => {
+        console.log("removed");
+        res.json({});
+      });
+    });
+  }else if (req.user.department == "Logistics") {
+    console.log(req.body);
+    Proposal.findOne({ where: { id: req.body.budget.id } }).then((approve) => {
+      approve.trainingTypeId = req.body.tType;
+      approve.venueApprovedRejectedDate = new Date();
+      approve.save().then((acc) => {
+        console.log("logisti acce");
+        res.json({});
+      });
+    });
+  }
+});
+
+//fetch all users of staffs, only for system admins
 app.get("/fetchAllUser_It", authenticateToken, async (req, res) => {
   // let users = null;
   // let deps = null;
@@ -29,6 +135,8 @@ app.get("/fetchAllUser_It", authenticateToken, async (req, res) => {
     .catch((err) => console.log("catch for all user ", err));
   // deps=Department.findAll()
 });
+
+//get a user by user name
 app.get("/getUser/:id", authenticateToken, async (req, res) => {
   // req.params.id?.toLowerCase()==req.user.userName?.toLowerCase()?
   // console.log("right",req.user):console.log("not ath",req.user,req.params.id);
@@ -37,24 +145,52 @@ app.get("/getUser/:id", authenticateToken, async (req, res) => {
       userName: req.params.id,
     },
   }).then((theUser) => {
-    Department.findOne({
-      where: {
-        id: theUser.departmentId,
-      },
-    }).then((deps) => {
-      deps.dataValues.name?.toLowerCase() == req.user.department?.toLowerCase()
-        ? res.json({
-            user: theUser,
-            department: deps,
-          })
-        : console.log("not ath", req.user.department, deps.dataValues.name);
-      // console.log({
-      //   user: theUser.dataValues,
-      //   department: deps.dataValues,
-      // })
-    });
+    theUser &&
+      Department.findOne({
+        where: {
+          id: theUser.departmentId,
+        },
+      })
+        .then((deps) => {
+          deps.dataValues.name?.toLowerCase() ==
+          req.user.department?.toLowerCase()
+            ? res.json({
+                user: theUser,
+                department: deps,
+              })
+            : console.log("not ath", req.user.department, deps.dataValues.name);
+          // console.log({
+          //   user: theUser.dataValues,
+          //   department: deps.dataValues,
+          // })
+        })
+        .catch((err) => console.log("error", err));
   });
 });
+
+//create a new proposal, all departments can create
+app.post("/addproposal", authenticateToken, async (req, res) => {
+  console.log("\nadding porposal\n", req.body);
+  Proposal.create({
+    topic: req.body.topic,
+    startDate: req.body.startDate,
+    endDate: req.body.endDate,
+    targetProfession: req.body.targetProfession,
+    numberOfFacilitator: req.body.numberOfFacilitator,
+    departmentId: req.body.departmentId,
+    numberOfTrainee: req.body.numberOfTrainee,
+    budget: req.body.budget,
+    numberOfTrainer: req.body.numberOfTrainer,
+    requestDate: req.body.requestDate,
+  })
+    .then((resp) => res.json(resp))
+    .catch((err) => {
+      console.log("Unsuccessful", err);
+      res.send(false);
+    });
+});
+
+//only for sys.admin to create new staff user
 app.post("/addstaff", authenticateToken, async (req, res) => {
   console.log("\n\nadding staff...", req.body);
   User.create({
@@ -67,7 +203,7 @@ app.post("/addstaff", authenticateToken, async (req, res) => {
     departmentId: req.body.departmentId,
     phone: req.body.phone,
     profession: req.body.profession,
-    userType: req.body.userType ? "Director" : "",
+    userType: req.body.userType ? "Director" : null,
     userName: req.body.userName,
     isStaff: true,
   })
@@ -77,6 +213,8 @@ app.post("/addstaff", authenticateToken, async (req, res) => {
       res.send(false);
     });
 });
+
+//edit staff user only by sys.admin
 app.post("/editstaff/:userName", authenticateToken, async (req, res) => {
   console.log("\nediting staff...", req.params.userName);
   await User.findOne({ where: { userName: req.params.userName } }).then(
@@ -106,6 +244,8 @@ app.post("/editstaff/:userName", authenticateToken, async (req, res) => {
   );
 });
 
+/*login by taking user name and password, 
+and generate a new token based on the user name, password and department*/
 app.post("/login", async (req, res) => {
   const reque = req.body.data;
   let user = {
@@ -150,6 +290,10 @@ app.listen(5000, () => {
   console.log("server running");
 });
 
+
+
+
+//check authentication token
 function authenticateToken(req, res, next) {
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];

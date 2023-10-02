@@ -50,7 +50,7 @@ module.exports = {
       },
       Dob: {
         allowNull:false,
-        type: Sequelize.DATE
+        type: Sequelize.DATEONLY
       },
       cpdId: {
         type: Sequelize.INTEGER

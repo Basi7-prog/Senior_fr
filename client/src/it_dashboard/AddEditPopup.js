@@ -16,19 +16,19 @@ class AddEditPopup extends React.Component {
     const assignFromForm = (e) => {
       this.setState({ childState: false });
       return {
-        firstName: e.target[0].value,
-        middleName: e.target[1].value,
-        lastName: e.target[2].value,
-        gender: e.target[5].value,
+        firstName: e.target[1].value,
+        middleName: e.target[2].value,
+        lastName: e.target[3].value,
+        gender: e.target[6].value,
         departmentId: this.state.departments?.find(
-          (dep) => dep.name == e.target[7].value
+          (dep) => dep.name == e.target[8].value
         ).id,
-        email: e.target[6].value,
-        phone: e.target[9].value,
-        profession: e.target[8].value,
-        Dob: e.target[3].value,
-        userType: e.target[10].checked,
-        userName: e.target[4].value,
+        email: e.target[7].value,
+        phone: e.target[10].value,
+        profession: e.target[9].value,
+        Dob: e.target[4].value,
+        userType: e.target[11].checked,
+        userName: e.target[5].value,
       };
     };
     const handleAdd = (e) => {
@@ -36,8 +36,8 @@ class AddEditPopup extends React.Component {
       const newUser = assignFromForm(e);
       console.log("add form: ", newUser);
       if (Object.values(newUser).includes("")) {
-        console.log("one or more field is empty")
-        this.setState({ childState: true })
+        console.log("one or more field is empty");
+        this.setState({ childState: true });
       } else {
         this.state.onSaveNewAction(newUser);
       }
@@ -45,12 +45,12 @@ class AddEditPopup extends React.Component {
     const handleEdit = (e) => {
       e.preventDefault();
       let editedUser = assignFromForm(e);
-      editedUser={...editedUser,oldUserName:this.state.user.userName}
+      editedUser = { ...editedUser, oldUserName: this.state.user.userName };
 
       console.log("edit form: ", editedUser);
       if (Object.values(editedUser).includes("")) {
-        console.log("one or more field is empty")
-        this.setState({ childState: true })
+        console.log("one or more field is empty");
+        this.setState({ childState: true });
       } else {
         this.state.onSaveEditAction(editedUser);
       }
@@ -71,12 +71,22 @@ class AddEditPopup extends React.Component {
           onClose={() => this.setState({ childState: false })}
           modal
         >
-          <div className="p-4 rounded-md bg-sixtyPer drop-shadow-[0_0px_10px_rgba(0,0,0,0.20)]">
-            <h1 className="text-center text-2xl font-bold mb-8">
+          <div className="w-fit bg-thirtyPer container mx-auto rounded-lg drop-shadow-[0_0px_5px_rgba(0,0,0,.25)]">
+            {/* <h1 className="text-center text-2xl font-bold mb-8">
               {this.state.user ? "Edit" : "Add"} Staff
-            </h1>
+            </h1> */}
             <form onSubmit={this.state.user ? handleEdit : handleAdd}>
-              <div className="grid grid-cols-3 gap-4">
+              <div className="py-2 px-9 flex flex-row justify-between">
+                <h1 className="text-2xl font-bold text-heading">
+                  {this.state.user ? "Edit" : "Add"} Staff
+                </h1>
+                <div className="flex gap-5">
+                  <button className="rounded-md px-5 text-sixtyPer text-xl bg-tenPer" type="submit">
+                    Save
+                  </button>
+                </div>
+              </div>
+              <div className="p-5 py-12 bg-sixtyPer rounded-b-lg grid grid-cols-3 gap-4">
                 <div className="flex flex-col">
                   <label htmlFor="firstName">First Name</label>
                   <input
@@ -204,12 +214,12 @@ class AddEditPopup extends React.Component {
                   />
                 </div>
               </div>
-              <button
+              {/* <button
                 type="submit"
                 className="rounded-md p-2 w-28 text-sixtyPer bg-tenPer mt-4"
               >
                 Done
-              </button>
+              </button> */}
             </form>
           </div>
         </Popup>

@@ -14,37 +14,56 @@ function LoginForm() {
       .then((res) => {
         console.log(res.data);
         Cookies.set("accessToken", res.data.accessToken, { expires: 1.0004 });
-        navigate(`/${checkNavigator(res.data.departments.name)}/${res.data.user.userName}`);
+        navigate(
+          `/${checkNavigator(res.data.departments.name)}/${
+            res.data.user.userName
+          }`
+        );
       })
       .catch((err) => console.log(err));
   };
+  const dropDownStyle =
+    "border-[1px] border-borderc rounded-lg px-3 py-1 focus:drop-shadow-[0_0px_3px_#0582F5] focus:border-tenPer outline-0";
+
   return (
-    <div className="">
-      <header className="">
-        <form onSubmit={handleSubmit(onSubmit)}>
+    <div className="flex flex-col w-fit gap-y-16 text-center mx-auto bg-sixtyPer shadow-2xl p-16">
+      <h1 className="text-5xl font-bold">Login</h1>
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="flex flex-col w-96 gap-y-16"
+      >
+        <div className="flex flex-col gap-y-4">
           <label className="">
-            User Name:
+            User Name
+          </label>
             <input
               type="text"
               name="userName"
               value={null}
+              className={dropDownStyle}
               {...register("userName")}
             />
-          </label>
+        </div>
+        <div className="flex flex-col gap-y-4">
           <label>
-            password:
+            password
+          </label>
             <input
               type="password"
               name="password"
+              className={dropDownStyle}
               value={null}
               {...register("password")}
             />
-          </label>
-
-          <button type="submit">Login</button>
-        </form>
-      </header>
-    </div>
+        </div>
+        <button
+          type="submit"
+          className="rounded-md px-5 py-2 text-sixtyPer text-xl bg-tenPer"
+        >
+          Login
+        </button>
+      </form>
+      </div>
   );
 }
 

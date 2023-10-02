@@ -10,6 +10,8 @@ module.exports = {
       'heading':'#131313',
       'text':'#434343',
       'borderc':'#A6A6A6',
+      'accepted':'#0FA958',
+      'rejected':'#A90F0F'
     },
     extend: {},
   },
