@@ -32,7 +32,8 @@ module.exports = (sequelize, DataTypes) => {
     password: DataTypes.STRING,
     departmentId:DataTypes.INTEGER,
     cpdId:DataTypes.INTEGER,
-    Dob: DataTypes.DATEONLY
+    Dob: DataTypes.DATEONLY,
+    isStaff:DataTypes.BOOLEAN
   }, {
     sequelize,
     modelName: 'User',

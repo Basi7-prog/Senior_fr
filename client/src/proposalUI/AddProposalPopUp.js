@@ -39,11 +39,12 @@ class AddPoposalPopUp extends React.Component {
         </div>
       );
     };
-    console.log(
+    console.log("depar id",
       this.state.proposal.endDate?.toString(),
       this.state.proposal.startDate?.toString(),
       this.state.department
     );
+      // console.log("departem",this.state.department.id)
     const today = `${new Date().getFullYear()}-${(new Date().getMonth() + 1)
       .toString()
       .padStart(2, "0")}-${new Date().getDay().toString().padStart(2, "0")}`;

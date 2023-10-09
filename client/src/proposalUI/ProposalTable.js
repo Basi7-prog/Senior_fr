@@ -57,14 +57,14 @@ function Populate({ proposal }) {
   return (
     <TableBody>
       {proposal.proposalForTable?.map((props, i) => (
-        <TableRow onClick={clicked}>
-          <TableCell class={colStyle} id={props.id}>
+        <TableRow>
+          <TableCell onClick={clicked} class={colStyle} id={props.id}>
             {props.topic}
           </TableCell>
-          <TableCell class={colStyle} id={props.id}>
+          <TableCell onClick={clicked} class={colStyle} id={props.id}>
             {props.requestDate}
           </TableCell>
-          <TableCell
+          <TableCell onClick={clicked}
             class={`${colStyle} ${
               isApprove(props.approveBudgetStatus, props.trainingTypeId)[0]
             }`}
@@ -72,6 +72,7 @@ function Populate({ proposal }) {
           >
             {isApprove(props.approveBudgetStatus, props.trainingTypeId)[1]}
           </TableCell>
+            <button id={props.id} className="rounded-md p-2 text-sixtyPer bg-tenPer">See Course</button>
         </TableRow>
       ))}
     </TableBody>

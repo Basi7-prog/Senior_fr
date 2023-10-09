@@ -4,7 +4,7 @@
 module.exports = {
   async up (queryInterface, Sequelize) {
     queryInterface.addConstraint("Courses",{
-      fields:["proposalsId"],
+      fields:["proposalId"],
       type:"foreign key",
       name:"course_proposal_association",
       references:{
@@ -16,7 +16,7 @@ module.exports = {
 
   async down (queryInterface, Sequelize) {
     queryInterface.removeConstraint("Courses",{
-      fields:["proposalsId"],
+      fields:["proposalId"],
       type:"foreign key",
       name:"course_proposal_association",
       references:{

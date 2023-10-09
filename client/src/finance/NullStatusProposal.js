@@ -41,7 +41,7 @@ function NullStatusProposal() {
           },
           body: JSON.stringify({
             budget: enteredBudget.find((ids) => ids.id == e.target.id),
-            tType: nullProposal.department == "Logistics" && trainingT+1,
+            tType: nullProposal.department == "Logistics" && trainingT,
           }),
         })
           .then((re) => re.json())
@@ -95,10 +95,10 @@ function NullStatusProposal() {
     );
     // setenteredBudget(e.target.value);
   };
-  const comboHandler=(e)=>{
-    console.log(e.target.selectedIndex)
-    settrainingT(e.target.selectedIndex)
-  }
+  const comboHandler = (e) => {
+    console.log(e.target.selectedIndex);
+    settrainingT(e.target.selectedIndex);
+  };
   const style1 = "mr-2 font-bold";
   const style2 = "";
   return (
@@ -160,9 +160,15 @@ function NullStatusProposal() {
               <label className={style1}>Approve Training Type</label>
               {nullProposal.department == "Logistics" &&
               !nullProposal.approveTrainingType ? (
-                <select className="" onChange={comboHandler} id={`combo${proposal.id}`}>
+                <select
+                  className=""
+                  onChange={comboHandler}
+                  id={`combo${proposal.id}`}
+                >
                   <option value="Self">Self</option>
-                  <option value="Out Source">Out Source</option>
+                  {nullProposal.cpd?.map((cpdName,i)=>(
+                  <option value="Out Source">{cpdName.name}
+                  </option>))}
                 </select>
               ) : (
                 !proposal.approveTrainingType && <label className="">---</label>
@@ -178,14 +184,16 @@ function NullStatusProposal() {
             >
               Accept
             </button>
-            <button
-              className="w-fit rounded-md p-2 text-sixtyPer bg-rejected"
-              onClick={acceptHandler}
-              value={"reject"}
-              id={proposal.id}
-            >
-              Reject
-            </button>
+            {!(nullProposal.department == "Logistics") && (
+              <button
+                className="w-fit rounded-md p-2 text-sixtyPer bg-rejected"
+                onClick={acceptHandler}
+                value={"reject"}
+                id={proposal.id}
+              >
+                Reject
+              </button>
+            )}
           </div>
         </div>
       ))}

@@ -13,8 +13,8 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
       Proposal.belongsTo(models.Department);
       models.Department.hasMany(Proposal);
-      Proposal.belongsTo(models.TrainingType);
-      models.TrainingType.hasMany(Proposal);
+      Proposal.belongsTo(models.CPD);
+      models.CPD.hasOne(Proposal);
     }
   }
   Proposal.init({
@@ -31,7 +31,7 @@ module.exports = (sequelize, DataTypes) => {
     budgetApprovedRejectedDate: DataTypes.DATE,
     venueApprovedRejectedDate: DataTypes.DATE,
     approveBudgetStatus: DataTypes.BOOLEAN,
-    trainingTypeId: DataTypes.INTEGER
+    CPDId: DataTypes.INTEGER
   }, {
     sequelize,
     modelName: 'Proposal',

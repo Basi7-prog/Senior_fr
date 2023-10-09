@@ -2,8 +2,7 @@ import { useParams } from "react-router-dom";
 import { Switch } from "react-router";
 import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
-import ItDash from "./ItDashboard";
-import ProposalForm from "../proposalUI/ProposalForm";
+import Menus from "../sideBarMenus/Menus";
 
 function It() {
   const params = useParams();
@@ -22,7 +21,7 @@ function It() {
         console.log("in it ", data);
 
         data.department.name.toLowerCase() == "system administrator"
-          ? setisAutherized(data.user)
+          ? setisAutherized(data)
           : setisAutherized(null);
         console.log(data.department.name);
       });
@@ -36,22 +35,10 @@ function It() {
       >
       </Route>
     </Routes> */}
-      {isAutherized != null ? `welcome ${isAutherized.userName}` : ""}
+      {isAutherized != null ? `welcome ${isAutherized.user.userName}` : ""}
       {isAutherized != null ? (
-        <div className="flex flex-row">
-          <div className="w-60">
-            <div className="fixed flex flex-col justify-center text-center gap-12 text-xl p-12 mt-14">
-              <div className="cursor-pointer" onClick={() => setclicked(1)}>
-                Proposal
-              </div>
-              <div className="cursor-pointer" onClick={() => setclicked(2)}>
-                User
-              </div>
-              {/* <Link to={`it/users`}>users</Link> */}
-            </div>
-          </div>
-          {clicked == 1 && <ProposalForm />}
-          {clicked == 2 && <ItDash data={isAutherized} />}
+        <div className="">
+          <Menus user={isAutherized}/>
         </div>
       ) : (
         "fuck outta here"

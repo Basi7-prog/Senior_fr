@@ -58,7 +58,7 @@ module.exports = {
       approveBudgetStatus: {
         type: Sequelize.BOOLEAN
       },
-      trainingTypeId: {
+      CPDId: {
         type: Sequelize.INTEGER
       },
       createdAt: {

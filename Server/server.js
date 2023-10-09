@@ -3,9 +3,10 @@ require("dotenv").config();
 const router = express.Router();
 const app = express();
 const cors = require("cors");
-const { User, Department, Proposal } = require("./models");
+const { User, Department, Proposal, Course, CPD } = require("./models");
 const jwt = require("jsonwebtoken");
-const proposal = require("./models/proposal");
+const Sequelize = require("sequelize");
+// const proposal = require("./models/proposal");
 
 app.use(cors());
 app.use(express.json());
@@ -14,21 +15,53 @@ app.get("/", (req, res) => {
   res.send("heloo");
 });
 
+//create a new proposal, all departments can create
+app.post("/addproposal", authenticateToken, async (req, res) => {
+  console.log("\nadding porposal\n", req.body);
+  Proposal.create({
+    topic: req.body.topic,
+    startDate: req.body.startDate,
+    endDate: req.body.endDate,
+    targetProfession: req.body.targetProfession,
+    numberOfFacilitator: req.body.numberOfFacilitator,
+    departmentId: req.body.departmentId,
+    numberOfTrainee: req.body.numberOfTrainee,
+    budget: req.body.budget,
+    numberOfTrainer: req.body.numberOfTrainer,
+    requestDate: req.body.requestDate,
+  })
+    .then((resp) => res.json(resp))
+    .catch((err) => {
+      console.log("Unsuccessful", err);
+      res.send(false);
+    });
+});
+
 //get all proposals filterd for each department
 app.get("/fetchAllProposal", authenticateToken, async (req, res) => {
   await Department.findOne({
     where: { name: req.user.department },
   }).then(async (depId) => {
-    console.log("\n\nfetch prposals...", req.user.department);
     await Proposal.findAll({ where: { departmentId: depId.id } })
       .then((resp) => {
-        if (resp.length>0) {
-          res.json({ resp, depDetail:{departmentId:resp.departmentId, depName: req.user.department} });
+        if (resp.length > 0) {
+          console.log("\n\nfetch prposals...", depId.id);
+          res.json({
+            resp,
+            depDetail: {
+              departmentId: depId.id,
+              depName: req.user.department,
+            },
+          });
         } else {
           Department.findOne({
             where: { name: req.user.department },
-          }).then((resDep)=>
-          res.json({resp, depDetail:{departmentId:resDep.id, depName: resDep.name} }));
+          }).then((resDep) =>
+            res.json({
+              resp,
+              depDetail: { departmentId: resDep.id, depName: resDep.name },
+            })
+          );
         }
       })
       .catch((err) => console.log(err));
@@ -38,21 +71,22 @@ app.get("/fetchAllProposal", authenticateToken, async (req, res) => {
 
 //fetch proposals which are null(approved/rejected), seen only for finance and logistics
 app.get("/fetchNullProposal", authenticateToken, async (req, res) => {
-  const isPrivilaged = req.user.department
-  const finLog=async()=>{
-  if (isPrivilaged == "Finance") {
-    return await Proposal.findAll({
-      where: { approveBudgetStatus: null },
-    });
-  }else{
-    return await Proposal.findAll({
-      where: { trainingTypeId: null },
-    });
-  }}
+  const isPrivilaged = req.user.department;
+  const finLog = async () => {
+    if (isPrivilaged == "Finance") {
+      return await Proposal.findAll({
+        where: { approveBudgetStatus: null },
+      });
+    } else if (isPrivilaged == "Logistics") {
+      return await Proposal.findAll({
+        where: { CPDId: null },
+      });
+    }
+  };
 
   await Department.findAll().then(async (respn) => {
     finLog()
-      .then((proposal) => {
+      .then(async (proposal) => {
         const proposalWdep = proposal.map(
           (props, i) =>
             (proposal[i].dataValues.departmentName = respn.find(
@@ -60,7 +94,13 @@ app.get("/fetchNullProposal", authenticateToken, async (req, res) => {
             ).name)
         );
         console.log("\n is precvilage?");
-        res.json({ nullProposal: proposal, department: req.user.department });
+        await CPD.findAll().then((allCpds) => {
+          res.json({
+            nullProposal: proposal,
+            department: req.user.department,
+            cpd: allCpds,
+          });
+        });
       })
       .catch((err) => console.log("\n error?", err));
   });
@@ -76,16 +116,18 @@ app.post("/proposalApprove", authenticateToken, (req, res) => {
       approve.budgetApprovedRejectedDate = new Date();
       approve.save().then((acc) => {
         console.log("acce");
+        createProposal(approve);
         res.json({});
       });
     });
-  }else if (req.user.department == "Logistics") {
+  } else if (req.user.department == "Logistics") {
     console.log(req.body);
     Proposal.findOne({ where: { id: req.body.budget.id } }).then((approve) => {
-      approve.trainingTypeId = req.body.tType;
+      approve.CPDId = req.body.tType == 0 ? null : req.body.tType;
       approve.venueApprovedRejectedDate = new Date();
       approve.save().then((acc) => {
         console.log("logisti acce");
+        createProposal(approve);
         res.json({});
       });
     });
@@ -105,10 +147,10 @@ app.post("/proposalReject", authenticateToken, (req, res) => {
         res.json({});
       });
     });
-  }else if (req.user.department == "Logistics") {
+  } else if (req.user.department == "Logistics") {
     console.log(req.body);
     Proposal.findOne({ where: { id: req.body.budget.id } }).then((approve) => {
-      approve.trainingTypeId = req.body.tType;
+      approve.CPDId = req.body.tType;
       approve.venueApprovedRejectedDate = new Date();
       approve.save().then((acc) => {
         console.log("logisti acce");
@@ -118,21 +160,93 @@ app.post("/proposalReject", authenticateToken, (req, res) => {
   }
 });
 
+const createProposal = async (approve) => {
+  console.log(approve.id);
+  if (approve.approveBudgetStatus && approve.CPDId) {
+    await Course.create({
+      proposalId: approve.id,
+      creditHr: 6,
+    }).then((res) => console.log("course created"));
+  }
+};
+
+app.get("/fetchAllCourse", authenticateToken, async (req, res) => {
+  await Department.findOne({
+    where: { name: req.user.department },
+  }).then(async (resp) => {
+    await Proposal.findAll({
+      include: [Course, CPD],
+      where: {
+        departmentId: resp.id,
+        CPDId: { [Sequelize.Op.ne]: null },
+        approveBudgetStatus: { [Sequelize.Op.ne]: null },
+      },
+    }).then(async (resp2) => {
+      console.log("fetching all courses");
+      res.json(resp2);
+    }).catch((err)=>console.log("error fetching all course",err));
+    // await Course.findAll({
+    //   include: {
+    //     model: Proposal,
+    //     include: [Department, CPD],
+    //   },
+    // }).then((data) => {
+    //   console.log("fetching all courses");
+    //   res.json(data);
+    // });
+  });
+});
+
 //fetch all users of staffs, only for system admins
 app.get("/fetchAllUser_It", authenticateToken, async (req, res) => {
   // let users = null;
   // let deps = null;
-  await User.findAll()
-    .then(async (allUsers) => {
-      await Department.findAll().then((allDeps) => {
-        const tojson = {
-          allDepartments: allDeps.map((dep) => dep.toJSON()),
-          users: allUsers.map((user) => user.toJSON()),
-        };
-        res.json(tojson);
-      });
+  if (req.user.department == "System Administrator") {
+    await User.findAll({
+      where: {
+        departmentId: {
+          [Sequelize.Op.ne]: null,
+        },
+      },
     })
-    .catch((err) => console.log("catch for all user ", err));
+      .then(async (allUsers) => {
+        await Department.findAll().then((allDeps) => {
+          const tojson = {
+            allDepartments: allDeps.map((dep) => dep.toJSON()),
+            users: allUsers.map((user) => user.toJSON()),
+          };
+          res.json(tojson);
+        });
+      })
+      .catch((err) => console.log("catch for all user ", err));
+  }
+  // deps=Department.findAll()
+});
+
+//fetch all users of staffs, only for system admins
+app.get("/fetchAllUser_It_cpd", authenticateToken, async (req, res) => {
+  // let users = null;
+  // let deps = null;
+  if (req.user.department == "System Administrator") {
+    await User.findAll({
+      include: [
+        {
+          model: CPD,
+        },
+      ],
+      where: {
+        cpdId: {
+          [Sequelize.Op.ne]: null,
+        },
+      },
+    })
+      .then(async (allUsers) => {
+        await CPD.findAll().then((allDeps) => {
+          res.json({ allUsers, allDeps });
+        });
+      })
+      .catch((err) => console.log("catch for all user ", err));
+  }
   // deps=Department.findAll()
 });
 
@@ -166,28 +280,6 @@ app.get("/getUser/:id", authenticateToken, async (req, res) => {
         })
         .catch((err) => console.log("error", err));
   });
-});
-
-//create a new proposal, all departments can create
-app.post("/addproposal", authenticateToken, async (req, res) => {
-  console.log("\nadding porposal\n", req.body);
-  Proposal.create({
-    topic: req.body.topic,
-    startDate: req.body.startDate,
-    endDate: req.body.endDate,
-    targetProfession: req.body.targetProfession,
-    numberOfFacilitator: req.body.numberOfFacilitator,
-    departmentId: req.body.departmentId,
-    numberOfTrainee: req.body.numberOfTrainee,
-    budget: req.body.budget,
-    numberOfTrainer: req.body.numberOfTrainer,
-    requestDate: req.body.requestDate,
-  })
-    .then((resp) => res.json(resp))
-    .catch((err) => {
-      console.log("Unsuccessful", err);
-      res.send(false);
-    });
 });
 
 //only for sys.admin to create new staff user
@@ -244,6 +336,46 @@ app.post("/editstaff/:userName", authenticateToken, async (req, res) => {
   );
 });
 
+//edit staff user only by sys.admin
+app.post("/editcpd/:userName", authenticateToken, async (req, res) => {
+  console.log("\nediting cpd...", req.params.userName);
+  await User.findOne({
+    where: { userName: req.params.userName },
+  }).then((editU) => {
+    editU
+      .update({
+        firstName: req.body.firstName,
+        middleName: req.body.middleName,
+        lastName: req.body.lastName,
+        Dob: req.body.Dob,
+        email: req.body.email,
+        gender: req.body.gender,
+        cpdId: req.body.cpdId,
+        phone: req.body.phone,
+        profession: req.body.profession,
+        userType: "Director",
+        userName: req.body.userName,
+        isStaff: false,
+      })
+      .then(
+        async (result) =>
+          await User.findOne({
+            include: [
+              {
+                model: CPD,
+              },
+            ],
+            where: { id: result.id },
+          }).then((newResult) => res.json(newResult))
+      )
+      .catch((err) => {
+        console.log("Unsuccessful");
+        res.send(false);
+        console.log(err);
+      });
+  });
+});
+
 /*login by taking user name and password, 
 and generate a new token based on the user name, password and department*/
 app.post("/login", async (req, res) => {
@@ -289,9 +421,6 @@ app.listen(5000, () => {
   // await UserType.drop();
   console.log("server running");
 });
-
-
-
 
 //check authentication token
 function authenticateToken(req, res, next) {

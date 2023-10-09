@@ -58,6 +58,10 @@ module.exports = {
       departmentId: {
         type: Sequelize.INTEGER
       },
+      isStaff: {
+        allowNull:false,
+        type: Sequelize.BOOLEAN
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

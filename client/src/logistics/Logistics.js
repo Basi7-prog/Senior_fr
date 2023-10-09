@@ -1,8 +1,7 @@
 import Cookies from "js-cookie";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import ProposalForm from "../proposalUI/ProposalForm";
-import NullStatusProposal from "../finance/NullStatusProposal";
+import Menus from "../sideBarMenus/Menus";
 
 function Logistics() {
   const params = useParams();
@@ -21,7 +20,7 @@ function Logistics() {
         console.log("in it ", data);
 
         data.department.name.toLowerCase() == "logistics"
-          ? setisAutherized(data.user)
+          ? setisAutherized(data)
           : setisAutherized(null);
         console.log(data.department.name);
       });
@@ -29,22 +28,10 @@ function Logistics() {
 
   return (
     <div className="">
-      {isAutherized != null ? `welcome ${isAutherized.userName}` : ""}
+      {isAutherized != null ? `welcome ${isAutherized.user.userName}` : ""}
       {isAutherized != null ? (
-        <div className="flex flex-row">
-          <div className="w-60">
-            <div className="fixed flex flex-col justify-center text-center gap-12 text-xl p-12 mt-14">
-                {/*!p.userType&&*/<div className="cursor-pointer" onClick={() => setclicked(1)}>
-                Requests
-              </div>}
-              <div className="cursor-pointer" onClick={() => setclicked(2)}>
-                Proposal
-              </div>
-              {/* <Link to={`it/users`}>users</Link> */}
-            </div>
-          </div>
-          {clicked == 1 && <NullStatusProposal/>}
-          {clicked == 2 && <ProposalForm />}
+        <div className="">
+          <Menus user={isAutherized}/>
         </div>
       ) : (
         "fuck outta here"
