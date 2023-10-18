@@ -8,8 +8,8 @@ function App() {
   return (
     <Router>
       <div className="">
-        <header className="flex justify-between items-center px-8 text-lg bo border-2 h-16 mb-12">
-          <Link to="/" className="text-2xl font-bold">AAHB</Link>
+        <header className="flex justify-between items-center px-8 text-sm bo border-2 h-16 mb-12">
+          <Link to="/" className="text-xl font-bold">AAHB</Link>
           <Link to="/ilogin">Login</Link>
         </header>
         <div className="container mx-auto">

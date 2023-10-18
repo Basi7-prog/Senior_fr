@@ -3,7 +3,15 @@ require("dotenv").config();
 const router = express.Router();
 const app = express();
 const cors = require("cors");
-const { User, Department, Proposal, Course, CPD } = require("./models");
+const {
+  User,
+  Department,
+  Proposal,
+  Course,
+  CPD,
+  Trainee,
+  Trainer,
+} = require("./models");
 const jwt = require("jsonwebtoken");
 const Sequelize = require("sequelize");
 // const proposal = require("./models/proposal");
@@ -138,7 +146,7 @@ app.post("/proposalApprove", authenticateToken, (req, res) => {
 app.post("/proposalReject", authenticateToken, (req, res) => {
   if (req.user.department == "Finance") {
     console.log(req.body);
-    Proposal.findOne({ where: { id: req.body.id } }).then((approve) => {
+    Proposal.findOne({ where: { id: req.body.budget.id } }).then((approve) => {
       approve.approveBudgetStatus = false;
       approve.budgetApprovedRejectedDate = new Date();
 
@@ -179,12 +187,19 @@ app.get("/fetchAllCourse", authenticateToken, async (req, res) => {
       where: {
         departmentId: resp.id,
         CPDId: { [Sequelize.Op.ne]: null },
-        approveBudgetStatus: { [Sequelize.Op.ne]: null },
+        [Sequelize.Op.and]: [
+          {
+            approveBudgetStatus: { [Sequelize.Op.ne]: null },
+            approveBudgetStatus: true,
+          },
+        ],
       },
-    }).then(async (resp2) => {
-      console.log("fetching all courses");
-      res.json(resp2);
-    }).catch((err)=>console.log("error fetching all course",err));
+    })
+      .then(async (resp2) => {
+        console.log("fetching all courses");
+        res.json(resp2);
+      })
+      .catch((err) => console.log("error fetching all course", err));
     // await Course.findAll({
     //   include: {
     //     model: Proposal,
@@ -374,6 +389,155 @@ app.post("/editcpd/:userName", authenticateToken, async (req, res) => {
         console.log(err);
       });
   });
+});
+
+app.get("/getTrainersbydep", authenticateToken, async (req, res) => {
+  await User.findAll({
+    include: {
+      model: Department,
+      where: { name: req.user.department },
+    },
+  })
+    .then(async (allUsers) => {
+      console.log("the users by dep", allUsers);
+      res.json(allUsers);
+    })
+    .catch((err) => console.log("catch for all user ", err));
+});
+
+app.post("/registertrainee", authenticateToken, async (req, res) => {
+  console.log(
+    `\n\ntrainee registered ${req.query.uid},${req.query.courseid} ${
+      req.query.uid > 0
+    }\n\n`
+  );
+  // console.log(req.body);
+  const addTr= async(userId)=> {
+    await Trainee.create({
+      userId: userId,
+      courseId: req.query.courseid,
+    }).then((resp) => {
+      res.json(resp);
+    });
+  }
+  if (!(req.query.uid > 0)) {
+    User.create({
+      firstName: req.body.firstName,
+      middleName: req.body.middleName,
+      lastName: req.body.lastName,
+      gender: req.body.gender,
+      email: req.body.email,
+      phone: req.body.phone,
+      profession: req.body.profession,
+      Dob: req.body.Dob,
+      userName: req.body.userName,
+    }).then((resp)=>{
+      console.log(resp.dataValues.id)
+      addTr(resp.dataValues.id);
+    });
+  }else{
+    addTr(req.query.uid)
+  }
+});
+
+app.get("/removetrainee", authenticateToken, async (req, res) => {
+  console.log(`\n\ntrainee removed ${req.query.traineeId}\n\n`);
+  await Trainee.destroy({
+    where: {
+      id: req.query.traineeId,
+    },
+  }).then((resp) => {
+    res.json("");
+  });
+});
+
+app.get("/getTrainees", authenticateToken, async (req, res) => {
+  await Trainee.findAll({
+    include: [User],
+    where: { courseId: req.query.courseId },
+  }).then((resp) => {
+    console.log("req success trainee");
+    res.json(resp);
+  });
+});
+
+app.post("/addTrainers", authenticateToken, async (req, res) => {
+  const tr = req.query.trainers.split(",");
+  const success = [];
+  console.log("\nthe trainers", tr, req.query.courseId);
+  tr.forEach(async (trainer) => {
+    await Trainer.create({
+      userId: trainer,
+      courseId: req.query.courseId,
+    }).then((res) => {
+      success.push("success");
+      console.log("successfully trainer created");
+    });
+  });
+  res.json(success);
+});
+
+app.get("/getTrainers", authenticateToken, async (req, res) => {
+  console.log("get trainers", req.query.courseId);
+  await Trainer.findAll({
+    include: [User],
+    where: { courseId: req.query.courseId },
+  }).then((resp) => {
+    console.log("successfully trainer created");
+    res.json(resp);
+  });
+});
+
+app.get("/removetrainer", authenticateToken, async (req, res) => {
+  console.log(`\ntrainer removed ${req.query.trainerId}\n`);
+
+  await Trainer.destroy({
+    where: {
+      id: req.query.trainerId,
+    },
+  }).then((resp) => {
+    res.json("trainer removed");
+  });
+});
+
+app.get("/searchuser/", authenticateToken, async (req, res) => {
+  const nameParts = req.query.query.split(" ");
+  const [fName, mName, lName] = nameParts;
+  console.log("the name", fName, req.query.userid);
+  if (nameParts.length == 1) {
+    await User.findAll({
+      where: {
+        firstName: { [Sequelize.Op.like]: `%${fName}%` },
+        departmentId: null,
+        cpdId: null,
+      },
+    }).then((resp) => {
+      res.json(resp);
+    });
+  } else if (nameParts.length == 2) {
+    await User.findAll({
+      where: {
+        [Sequelize.Op.or]: [
+          { firstName: { [Sequelize.Op.like]: `%${fName}%` } },
+          { middleName: { [Sequelize.Op.like]: `%${mName}%` } },
+        ],
+      },
+    }).then((resp) => {
+      res.json(resp);
+    });
+  } else if (nameParts.length == 3) {
+    await User.findAll({
+      where: {
+        [Sequelize.Op.or]: [
+          { firstName: { [Sequelize.Op.like]: `%${fName}%` } },
+          { middleName: { [Sequelize.Op.like]: `%${mName}%` } },
+          { lastName: { [Sequelize.Op.like]: `%${lName}%` } },
+        ],
+      },
+    }).then((resp) => {
+      res.json(resp);
+    });
+  }
 });
 
 /*login by taking user name and password, 

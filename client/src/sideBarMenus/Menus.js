@@ -14,7 +14,7 @@ function Menus(user) {
   return (
     <div className="flex flex-row">
       <div className="w-60">
-        <div className="fixed flex flex-col justify-center text-center gap-12 text-xl p-12 mt-14">
+        <div className="fixed flex flex-col justify-center text-center gap-12 text-lg p-12 mt-14">
           {(user.user.department.name.toLowerCase() == "finance" ||
             user.user.department.name.toLowerCase() == "logistics") && (
             <div className="cursor-pointer" onClick={() => setclicked(1)}>
@@ -45,7 +45,7 @@ function Menus(user) {
       {clicked == 2 && <ProposalForm />}
       {clicked == 3 && <ItDash />}
       {clicked == 4 && <ItDashCpd />}
-      {clicked == 5 && <Courses />}
+      {clicked == 5 && <Courses theU={user}/>}
     </div>
   );
 }

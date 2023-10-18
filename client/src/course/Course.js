@@ -3,9 +3,11 @@ import { useEffect, useState } from "react";
 import CourseTable from "./CourseTable";
 import CourseDetails from "./CourseDetail";
 
-function Courses() {
+function Courses(user) {
   const cookies = Cookies.get("accessToken");
   const [allCourse, setallCourse] = useState();
+  const [courseDetails, setcourseDetails] = useState();
+  const [flagClick, setflagClick] = useState(false);
   useEffect(() => {
     fetch("/fetchAllCourse", {
       headers: {
@@ -18,10 +20,27 @@ function Courses() {
         setallCourse(data);
       });
   }, []);
+  
+  const clickedCourseHandler = (event) => {
+    console.log("clicked", event);
+    setflagClick(true);
+    setcourseDetails(event);
+  };
   return (
-    <div className="w-full">
-      {(typeof allCourse==='undefined')?"Loading...":<CourseDetails courseD={allCourse[0]} />}
-      {/* <CourseTable courseTable={allCourse} /> */}
+    <div className="w-full text-sm ">
+       {!flagClick ? (
+        <CourseTable
+          courseTable={allCourse}
+          clickHandler={clickedCourseHandler}
+        />
+      ) : typeof allCourse === "undefined" ? (
+        "Loading..."
+      ) : courseDetails ? (
+        <CourseDetails courseD={allCourse[courseDetails]} setTheFlag={setflagClick} theU={user.theU}/>
+      ) : (
+        ""
+      )}
+
     </div>
   );
 }
