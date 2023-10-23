@@ -5,7 +5,7 @@ import Axios from "axios";
 import Cookies from "js-cookie";
 import { checkNavigator } from "./checkNavigator.js";
 
-function LoginForm() {
+function LoginForm(user) {
   const { register, handleSubmit } = useForm();
   const navigate = useNavigate();
   const onSubmit = async (data) => {
@@ -14,8 +14,9 @@ function LoginForm() {
       .then((res) => {
         console.log(res.data);
         Cookies.set("accessToken", res.data.accessToken, { expires: 1.0004 });
+        user.isLogedIn(res.data);
         navigate(
-          `/${checkNavigator(res.data.departments.name)}/${
+          `/${checkNavigator(res.data.department.name)}/${
             res.data.user.userName
           }`
         );

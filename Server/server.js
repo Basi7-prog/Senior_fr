@@ -3,6 +3,8 @@ require("dotenv").config();
 const router = express.Router();
 const app = express();
 const cors = require("cors");
+const bcrypt = require("bcrypt");
+
 const {
   User,
   Department,
@@ -11,6 +13,7 @@ const {
   CPD,
   Trainee,
   Trainer,
+  Facilitator,
 } = require("./models");
 const jwt = require("jsonwebtoken");
 const Sequelize = require("sequelize");
@@ -183,7 +186,10 @@ app.get("/fetchAllCourse", authenticateToken, async (req, res) => {
     where: { name: req.user.department },
   }).then(async (resp) => {
     await Proposal.findAll({
-      include: [Course, CPD],
+      include: [
+        { model: CPD },
+        { model: Course, include: [{ model: Facilitator }] },
+      ],
       where: {
         departmentId: resp.id,
         CPDId: { [Sequelize.Op.ne]: null },
@@ -269,32 +275,39 @@ app.get("/fetchAllUser_It_cpd", authenticateToken, async (req, res) => {
 app.get("/getUser/:id", authenticateToken, async (req, res) => {
   // req.params.id?.toLowerCase()==req.user.userName?.toLowerCase()?
   // console.log("right",req.user):console.log("not ath",req.user,req.params.id);
-  await User.findOne({
-    where: {
-      userName: req.params.id,
-    },
-  }).then((theUser) => {
-    theUser &&
-      Department.findOne({
-        where: {
-          id: theUser.departmentId,
-        },
-      })
-        .then((deps) => {
-          deps.dataValues.name?.toLowerCase() ==
-          req.user.department?.toLowerCase()
-            ? res.json({
-                user: theUser,
-                department: deps,
-              })
-            : console.log("not ath", req.user.department, deps.dataValues.name);
-          // console.log({
-          //   user: theUser.dataValues,
-          //   department: deps.dataValues,
-          // })
+  
+    if (req.params.id.toLowerCase() === req.user.userName.toLowerCase()) {
+            await User.findOne({
+      where: {
+        userName: req.params.id,
+      },
+    }).then((theUser) => {
+      theUser &&
+        Department.findOne({
+          where: {
+            id: theUser.departmentId,
+          },
         })
-        .catch((err) => console.log("error", err));
-  });
+          .then((deps) => {
+            deps.dataValues.name?.toLowerCase() ==
+            req.user.department?.toLowerCase()
+              ? res.json({
+                  user: theUser,
+                  department: deps,
+                })
+              : console.log(
+                  "not ath",
+                  req.user.department,
+                  deps.dataValues.name
+                );
+            // console.log({
+            //   user: theUser.dataValues,
+            //   department: deps.dataValues,
+            // })
+          })
+          .catch((err) => console.log("error", err));
+    });
+  }
 });
 
 //only for sys.admin to create new staff user
@@ -412,14 +425,18 @@ app.post("/registertrainee", authenticateToken, async (req, res) => {
     }\n\n`
   );
   // console.log(req.body);
-  const addTr= async(userId)=> {
+  const addTr = async (userId) => {
     await Trainee.create({
       userId: userId,
       courseId: req.query.courseid,
-    }).then((resp) => {
+    }).then(async (resp) => {
+      await Course.update(
+        { courseStatus: true },
+        { where: { id: req.query.courseid } }
+      );
       res.json(resp);
     });
-  }
+  };
   if (!(req.query.uid > 0)) {
     User.create({
       firstName: req.body.firstName,
@@ -431,12 +448,12 @@ app.post("/registertrainee", authenticateToken, async (req, res) => {
       profession: req.body.profession,
       Dob: req.body.Dob,
       userName: req.body.userName,
-    }).then((resp)=>{
-      console.log(resp.dataValues.id)
+    }).then((resp) => {
+      console.log(resp.dataValues.id);
       addTr(resp.dataValues.id);
     });
-  }else{
-    addTr(req.query.uid)
+  } else {
+    addTr(req.query.uid);
   }
 });
 
@@ -540,6 +557,69 @@ app.get("/searchuser/", authenticateToken, async (req, res) => {
   }
 });
 
+app.post("/addFacilitator", authenticateToken, async (req, res) => {
+  const tr = req.query.facilitators.split(",");
+  const success = [];
+  const directorName = await User.findOne({
+    include: { model: Department, where: { name: req.user.department } },
+    where: { userType: "director" },
+  });
+  console.log(
+    "\nthe facilitator",
+    tr,
+    req.query.courseId,
+    directorName.firstName
+  );
+  tr.forEach(async (facilitator) => {
+    await Facilitator.create({
+      userId: facilitator,
+      courseId: req.query.courseId,
+      assignedBy: `${directorName.firstName} ${directorName.middleName} ${directorName.lastName}`,
+    }).then((res) => {
+      success.push("success");
+      console.log("successfully facilitator reated");
+    });
+  });
+  res.json(success);
+});
+
+app.get("/getFacilitator", authenticateToken, async (req, res) => {
+  console.log("get facilitator", req.query.courseId);
+  await Facilitator.findAll({
+    include: [User],
+    where: { courseId: req.query.courseId },
+  }).then((resp) => {
+    console.log("successfully found facilitator");
+    res.json(resp);
+  });
+});
+
+app.post("/changepass", authenticateToken, async (req, res) => {
+  console.log(req.query.id, req.query.password);
+  const uId = req.query.id;
+  await User.findOne({ where: { id: uId } }).then(async (resp) => {
+    // if (resp.password == "") {
+    const saltRounds = 3;
+    bcrypt.hash(req.query.password, saltRounds, async function (err, hash) {
+      if (err) {
+        console.error(err);
+        return;
+      }
+      console.log(typeof hash); // This is the hashed password
+
+      await User.update({ password: hash }, { where: { id: uId } }).then(
+        (rep2) => {
+          console.log("done", hash);
+        }
+      ).then((resp2)=>{
+        res.json(true)
+      });
+    });
+    // }
+    // console.log(checkPass())
+  });
+});
+
 /*login by taking user name and password, 
 and generate a new token based on the user name, password and department*/
 app.post("/login", async (req, res) => {
@@ -552,24 +632,55 @@ app.post("/login", async (req, res) => {
   const foundUser = await User.findOne({
     where: {
       userName: reque.userName,
-      password: reque.password,
+      // password: reque.password,
     },
   })
     .then(async (foundUser) => {
-      const departments = await Department.findOne({
-        where: {
-          id: foundUser.departmentId,
-        },
-      });
-      user = { ...user, department: departments.name };
-      console.log(user);
-      accessToken = jwt.sign(user, process.env.JWT_SECRET);
+      if (foundUser.password != "") {
+        bcrypt.compare(
+          user.password,
+          foundUser.password,
+          async function (err, pRes) {
+            if (err) {
+              console.error(err);
+              return;
+            }
+            if (pRes) {
+              const departments = await Department.findOne({
+                where: {
+                  id: foundUser.departmentId,
+                },
+              });
+              user = { ...user, department: departments.name };
+              console.log("logged in user",user);
+              accessToken = jwt.sign(user, process.env.JWT_SECRET);
 
-      res.json({
-        accessToken: accessToken,
-        user: foundUser,
-        departments: departments,
-      });
+              res.json({
+                accessToken: accessToken,
+                user: foundUser,
+                department: departments,
+              });
+            } else {
+              console.log("password not the same");
+            }
+          }
+        );
+      } else if (user.password == foundUser.password) {
+        const departments = await Department.findOne({
+          where: {
+            id: foundUser.departmentId,
+          },
+        });
+        user = { ...user, department: departments.name };
+        console.log(user);
+        accessToken = jwt.sign(user, process.env.JWT_SECRET);
+
+        res.json({
+          accessToken: accessToken,
+          user: foundUser,
+          department: departments,
+        });
+      }
     })
     .catch((err) => console.log("error", err));
 
@@ -585,7 +696,16 @@ app.listen(5000, () => {
   // await UserType.drop();
   console.log("server running");
 });
-
+app.get("/isUser", authenticateToken, async (req, res) => {
+  console.log("logged user", req.user);
+  if (req.user != null) {
+    await User.findOne({ where: { userName: req.user.userName } }).then(
+      (resp) => {
+        res.json({ user: resp, department: req.user.department });
+      }
+    );
+  }
+});
 //check authentication token
 function authenticateToken(req, res, next) {
   const authHeader = req.headers["authorization"];
@@ -596,10 +716,34 @@ function authenticateToken(req, res, next) {
 
   jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
     if (err) {
-      //console.log("got it ", user);
+      // console.log("got it ", user);
       return res.sendStatus(403);
     }
     req.user = user;
     next();
+  });
+}
+
+function hashPass(password) {
+  const saltRounds = 3;
+  bcrypt.hash(password, saltRounds, function (err, hash) {
+    if (err) {
+      console.error(err);
+      return;
+    }
+    console.log(hash); // This is the hashed password
+    return hash;
+  });
+}
+
+function checkPass(password, hash) {
+  bcrypt.compare(password, hash, function (err, res) {
+    if (err) {
+      console.error(err);
+      return;
+    }
+
+    console.log(res); // This will be true if the password matches the hash, and false otherwise
+    return res;
   });
 }

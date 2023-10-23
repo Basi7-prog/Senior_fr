@@ -9,15 +9,27 @@ function CourseDetails(course) {
   console.log("the course detail is", course);
   const [enrolledTrainees, setEnrolledTrainees] = useState(0);
   const [trainers, setTrainers] = useState(0);
+  const [facilitators, setFacilitators] = useState(0);
   const [days, setDays] = useState(0);
   const [daysLeft, setDaysLeft] = useState(0);
+  const [isFacil, setisFacil] = useState(false);
+
+  console.log("got it",isFacil)
 
   useEffect(() => {
+    setFacilitators(course.courseD.Course?.Facilitators?.length)
     calculateDaysLeft(
       new Date().toDateString(),
       course.courseD.startDate,
       course.courseD.endDate
     );
+  for (let i = 0; i < course.courseD.Course?.Facilitators?.length; i++) {
+    if (course.courseD.Course?.Facilitators[i].UserId == course.theU.user.id) {
+        setisFacil( true);
+        break;
+      }
+    
+  }
   }, []);
 
   function calculateDaysLeft(currnentDate, startDate, endDate) {
@@ -25,7 +37,6 @@ function CourseDetails(course) {
     const start = new Date(startDate);
     const end = new Date(endDate);
     const differenceInMs = end - current;
-
     if (differenceInMs > 0) {
       if (start <= current) {
         // Calculate the difference in milliseconds
@@ -84,6 +95,8 @@ function CourseDetails(course) {
           <div className="overflow-hidden">
             <TraineesTable
               cId={course.courseD.Course?.id}
+              userId={isFacil}
+              isActive={course.courseD.Course?.courseStatus}
               setEnrolledT={setEnrolledTrainees}
             />
           </div>
@@ -91,15 +104,18 @@ function CourseDetails(course) {
             <div className="flex flex-col gap-y-5">
               <TrainersTable
                 cId={course.courseD.Course?.id}
+                userId={isFacil}
+                isActive={course.courseD.Course?.courseStatus}
                 setTrainers={setTrainers}
               />
-              {course.theU.user.user.userType.toLowerCase() == "director" ? (
-                <FacilitatorPopUp cId={course.courseD.Course?.id} />
-              ) : (
-                ""
-              )}
-              <h1 className="text-lg font-bold">Facilitator</h1>
-              <div className="flex flex-row">asdf adfs</div>
+              <FacilitatorPopUp
+                cId={course.courseD.Course?.id}
+                isDirector={
+                  course.theU.user.userType.toLowerCase() == "director"
+                }
+                isActive={course.courseD.Course?.courseStatus}
+                noFacilitators={setFacilitators}
+              />
             </div>
           </div>
         </div>
@@ -111,7 +127,7 @@ function CourseDetails(course) {
             <span className="font-bold">Trainers</span>
             <span className="">{trainers}</span>
             <span className="font-bold">Facilitor</span>
-            <span className="">2</span>
+            <span className="">{facilitators}</span>
             <span className="font-bold">Venue</span>
             <span className="">{course.courseD.CPD.name}</span>
           </div>

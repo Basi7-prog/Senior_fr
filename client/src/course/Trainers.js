@@ -29,7 +29,7 @@ function Trainers(cId) {
       .then((res) => {
         console.log("assigned trainers:", res.data);
         setallTrainers(res.data);
-        cId.setTrainers( res.data.length)
+        cId.setTrainers(res.data.length);
       });
   };
 
@@ -57,7 +57,7 @@ function Trainers(cId) {
           childState: true,
           trainers: data,
           courseId: cId.cId,
-          addTrainers:addTrainer
+          addTrainers: addTrainer,
         });
       });
   };
@@ -69,14 +69,23 @@ function Trainers(cId) {
         setassignClick(true);
       }}
     >
-      <button
-        className="w-fit rounded-md p-2 text-sixtyPer bg-tenPer"
-        onClick={assignTrainerHandler}
-      >
-        Assign Trainers
-      </button>
+      {cId.userId && (cId.isActive!=false) ? (
+        <button
+          className="w-fit rounded-md p-2 text-sixtyPer bg-tenPer"
+          onClick={assignTrainerHandler}
+        >
+          Assign Trainers
+        </button>
+      ) : (
+        <h1 className="text-lg font-medium">Trainers</h1>
+      )}
       <Trainerpop ref={childRef} />
-      <TableView trainers={allTrainers} removeT={remove} />
+      <TableView
+        trainers={allTrainers}
+        removeT={remove}
+        isFacil={cId.userId}
+        isActive={cId.isActive}
+      />
     </div>
   );
 }
@@ -94,7 +103,9 @@ function TableView(allTrainers) {
             <TableCell class={headerStyle}>Name</TableCell>
             {/* <TableCell class={headerStyle}>Edu.Level</TableCell> */}
             <TableCell class={headerStyle}>Approval Rate%</TableCell>
-            <TableCell class={headerStyle}>Action</TableCell>
+            {(allTrainers.isFacil&&(allTrainers.isActive!=false)) ? (
+              <TableCell class={headerStyle}>Action</TableCell>
+            ) : null}
           </TableRow>
         </TableHead>
         <TableBody>
@@ -108,13 +119,15 @@ function TableView(allTrainers) {
                   <TableCell class={colStyle}>
                     {trainer.User.rating ? trainer.User.rating : 0}%
                   </TableCell>
-                  <TableCell
-                    class={`${colStyle} text-rejected`}
-                    id={trainer.id}
-                    onClick={allTrainers.removeT}
-                  >
-                    Remove
-                  </TableCell>
+                  {(allTrainers.isFacil&&(allTrainers.isActive!=false)) ? (
+                    <TableCell
+                      class={`${colStyle} text-rejected`}
+                      id={trainer.id}
+                      onClick={allTrainers.removeT}
+                    >
+                      Remove
+                    </TableCell>
+                  ) : null}
                 </TableRow>
               ))
             : ""}

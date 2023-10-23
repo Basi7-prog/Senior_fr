@@ -28,7 +28,7 @@ function Logistics() {
 
   return (
     <div className="">
-      {isAutherized != null ? `welcome ${isAutherized.user.userName}` : ""}
+      {/* {isAutherized != null ? `welcome ${isAutherized.user.userName}` : ""} */}
       {isAutherized != null ? (
         <div className="">
           <Menus user={isAutherized}/>

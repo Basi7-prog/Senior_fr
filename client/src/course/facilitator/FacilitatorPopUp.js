@@ -21,7 +21,7 @@ class FacilitatorPopUp extends React.Component {
     const colStyle = "text-centerpy-3 border-t-4 p-2 cursor-pointer";
     const cookies = Cookies.get("accessToken");
 
-    const addTrainerHandler = async (e) => {
+    const addFacilitatorHandler = async (e) => {
       e.preventDefault();
       const arr = [];
       console.log("checks are", e.target[1]);
@@ -36,7 +36,7 @@ class FacilitatorPopUp extends React.Component {
 
       await axios
         .post(
-          `/addTrainers?trainers=${arr}&courseId=${this.state.courseId}`,
+          `/addFacilitator?facilitators=${arr}&courseId=${this.state.courseId}`,
           {},
           {
             headers: {
@@ -47,7 +47,8 @@ class FacilitatorPopUp extends React.Component {
         )
         .then(() => {
           this.setState({ childState: false });
-          this.state.addTrainers();
+          this.state.loading(true);
+          this.state.addFacilitators();
         });
     };
 
@@ -66,7 +67,7 @@ class FacilitatorPopUp extends React.Component {
               </h1>
             </div>
             <div className="">
-              <form onSubmit={addTrainerHandler}>
+              <form onSubmit={addFacilitatorHandler}>
                 <button type="submit" className="w-fit mt-4 rounded-md p-2 text-sixtyPer bg-tenPer">+ Facilitator</button>
                 <TableContainer component={Paper}>
                   <Table>

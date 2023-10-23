@@ -32,40 +32,49 @@ function Trainees(courseId) {
       .then((res) => res.json())
       .then((res) => {
         setalltrainees(res);
-        courseId.setEnrolledT(res.length)
+        courseId.setEnrolledT(res.length);
         console.log(alltrainees);
       });
     // setalltrainees((prev) => ({ ...prev, trainee }));
     // console.log("sent added trainee",alltrainees);
   };
-  const remove=(e)=>{
+  const remove = (e) => {
     fetch(`/removetrainee?traineeId=${e.target.id}`, {
       headers: { Authorization: `Bearer ${cookies}` },
-    })
-      .then((res) => 
-      addTrainee())
-  }
+    }).then((res) => addTrainee());
+  };
 
   useEffect(() => {
     addTrainee();
   }, []);
   return (
     <div className="flex flex-col gap-y-3">
-      <button
-        className="w-fit rounded-md p-2 text-sixtyPer bg-tenPer"
-        onClick={assignTraineeHandler}
-      >
-        New Trainees
-      </button>
+      {(courseId.userId&&(courseId.isActive!=false)) ? (
+        <button
+          className="w-fit rounded-md p-2 text-sixtyPer bg-tenPer"
+          onClick={assignTraineeHandler}
+        >
+          New Trainees
+        </button>
+      ) : (
+        <h1 className="text-lg font-medium">Trainees</h1>
+      )}
       <Traineepop ref={childRef} />
-      <TableView getTrainees={alltrainees} setTrainees={setalltrainees} removeT={remove} />
+      <TableView
+        getTrainees={alltrainees}
+        setTrainees={setalltrainees}
+        removeT={remove}
+        isFacil={courseId.userId}
+        isActive={courseId.isActive}
+      />
     </div>
   );
 }
 
 function TableView(trainees) {
   const headerStyle = "font-bold p-4 text-sm border-b-[1px]";
-  const colStyle = "text-center py-3 px-2 cursor-pointer border-b-[1px] text-[12px]";
+  const colStyle =
+    "text-center py-3 px-2 cursor-pointer border-b-[1px] text-[12px]";
   console.log(trainees.getTrainees.length);
   return (
     <div>
@@ -77,7 +86,9 @@ function TableView(trainees) {
                 <TableCell class={headerStyle}>Name</TableCell>
                 <TableCell class={headerStyle}>Edu.Level</TableCell>
                 <TableCell class={headerStyle}>Attendance%</TableCell>
-                <TableCell class={headerStyle}>Action</TableCell>
+                {(trainees.isFacil&&(trainees.isActive!=false)) ? (
+                  <TableCell class={headerStyle}>Action</TableCell>
+                ) : null}
               </TableRow>
             </TableHead>
             <TableBody>
@@ -90,7 +101,15 @@ function TableView(trainees) {
                   <TableCell class={colStyle}>
                     {trainee.attendance ? trainee.attendance : 0}%
                   </TableCell>
-                  <TableCell class={`${colStyle} text-rejected`} id={trainee.id} onClick={trainees.removeT}>Remove</TableCell>
+                  {(trainees.isFacil&&(trainees.isActive!=false)) ? (
+                    <TableCell
+                      class={`${colStyle} text-rejected`}
+                      id={trainee.id}
+                      onClick={trainees.removeT}
+                    >
+                      Remove
+                    </TableCell>
+                  ) : null}
                 </TableRow>
               ))}
             </TableBody>
