@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import Courses from "../course/Course";
 import ItDashCpd from "../it_dashboard/cpd/ItDashboardCpd";
 import Cookies from "js-cookie";
-import { useParams } from "react-router-dom";
+import { Link, Route, Routes, useParams } from "react-router-dom";
 import Profile from "../profile/Profile";
 
 function Menus() {
@@ -16,6 +16,7 @@ function Menus() {
   const [clicked, setclicked] = useState(0);
   const [user, setUser] = useState(null);
   const [depName, setDepName] = useState();
+  const [visible, setVisisble] = useState(true);
   const cookies = Cookies.get("accessToken");
   useEffect(() => {
     fetch("/getUser/" + params.id, {
@@ -31,45 +32,61 @@ function Menus() {
         console.log(data.department.name);
       });
   }, []);
-
+  const classcss =
+    "cursor-pointer focus-within:font-bold focus-within:text-tenPer";
   return (
-    <div>
-      {user!=null && (
+    <div className="w-full">
+      {user != null && (
         <div className="flex flex-row">
-          <div className="w-60">
-            <div className="fixed flex flex-col justify-center text-center gap-12 text-lg p-12 mt-14">
-              <div className="cursor-pointer" onClick={() => setclicked(0)}>
+          <div className="w-60 h-screen">
+            <div className="group flex flex-col justify-center text-center gap-12 text-lg p-12">
+              <Link to="profile" className={classcss} onClick={() => setclicked(0)}>
                 Profile
-              </div>
+              </Link>
               {(depName == "finance" || depName == "logistics") && (
-                <div className="cursor-pointer" onClick={() => setclicked(1)}>
+                <Link to="reques_proposals" className={classcss} onClick={() => setclicked(1)}>
                   Requests
-                </div>
+                </Link>
               )}
-              <div className="cursor-pointer" onClick={() => setclicked(2)}>
+              <Link to="proposals" className={classcss} onClick={() => setclicked(2)}>
                 Proposal
-              </div>
+              </Link>
               {depName == "system administrator" && (
-                <div className="cursor-pointer" onClick={() => setclicked(3)}>
-                  Users
-                </div>
+                <Link to="staff" className={classcss} onClick={() => setclicked(3)}>
+                  Staff
+                </Link>
               )}
               {depName == "system administrator" && (
-                <div className="cursor-pointer" onClick={() => setclicked(4)}>
+                <Link to="cpd" className={classcss} onClick={() => setclicked(4)}>
                   CPD
-                </div>
+                </Link>
               )}
-              <div className="cursor-pointer" onClick={() => setclicked(5)}>
+              <Link
+                className={classcss}
+                to={`/${params.id}/menu/course`}
+                onClick={()=>{ setVisisble(false) }}
+              >
                 Courses
-              </div>
+              </Link>
             </div>
           </div>
-          {clicked == 0 && <Profile theU={user} />}
-          {clicked == 1 && <NullSP />}
-          {clicked == 2 && <ProposalForm />}
-          {clicked == 3 && <ItDash />}
-          {clicked == 4 && <ItDashCpd />}
-          {clicked == 5 && <Courses theU={user} />}
+            <div className=" border-l-2 w-full overflow-hidden pt-8">
+          <div className="overflow-hidden p-3">
+          {/* {clicked == 0 && visible && <Profile theU={user} />} */}
+          {/* {clicked == 1 && visible && <NullSP />} */}
+          {/* {clicked == 2 && visible && <ProposalForm />} */}
+          {/* {clicked == 3 && visible && <ItDash />} */}
+          {/* {clicked == 4 && <ItDashCpd />} */}
+            <Routes>
+              <Route path="/course/*" element={<Courses theU={user} />} />
+              <Route path="/cpd" element={<ItDashCpd theU={user}/>} />
+              <Route path="/staff" element={<ItDash theU={user}/>} />
+              <Route path="/proposals" element={<ProposalForm theU={user}/>} />
+              <Route path="/reques_proposals" element={<NullSP theU={user}/>} />
+              <Route path="/profile" element={<Profile  theU={user}/>} />
+            </Routes>
+          </div>
+          </div>
         </div>
       )}
     </div>

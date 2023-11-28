@@ -3,7 +3,7 @@ import Cookies from "js-cookie";
 import PropTable from "./ProposalTable";
 import AddPopup from "./AddProposalPopUp";
 
-function ProposalForm() {
+function ProposalForm(user) {
   const [allProposal, setallProposal] = useState([{}]);
   const cookies = Cookies.get("accessToken");
   const childProposalRef = useRef({});
@@ -23,6 +23,7 @@ function ProposalForm() {
             name: proposals.depDetail.depName,
           },
           onSaveNewProposal: saveProposal,
+          isDirector:user.theU.user.userType != "",
         });
       })
       .catch((err) => console.log("fetching proposal errror", err));

@@ -20,7 +20,7 @@ class AddEditPopup extends React.Component {
         middleName: e.target[2].value,
         lastName: e.target[3].value,
         gender: e.target[6].value,
-        cpdId: e.target[8].selectedIndex+1,
+        cpdId: e.target[8].value,
         email: e.target[7].value,
         phone: e.target[10].value,
         profession: e.target[9].value,
@@ -57,12 +57,14 @@ class AddEditPopup extends React.Component {
 
     return (
       <div className="">
-        <button
-          onClick={() => this.setState({ childState: true, user: 0 })}
-          className="rounded-md p-2 w-28 text-sixtyPer bg-tenPer mt-4"
-        >
-          Add CPD
-        </button>
+        {this.state.isDirector && (
+          <button
+            onClick={() => this.setState({ childState: true, user: 0 })}
+            className="rounded-md p-2 w-28 text-sixtyPer bg-tenPer mt-4"
+          >
+            Add CPD
+          </button>
+        )}
         <Popup
           open={this.state.childState}
           onClose={() => this.setState({ childState: false })}
@@ -75,13 +77,18 @@ class AddEditPopup extends React.Component {
             <form onSubmit={this.state.user ? handleEdit : handleAdd}>
               <div className="py-2 px-9 flex flex-row justify-between">
                 <h1 className="text-2xl font-bold text-heading">
-                  {this.state.user ? "Edit" : "Add"} CPD
+                  {this.state.isDirector ?this.state.user ? "Edit" : "Add":"" }CPD
                 </h1>
-                <div className="flex gap-5">
-                  <button className="rounded-md px-5 text-sixtyPer text-xl bg-tenPer" type="submit">
-                    Save
-                  </button>
-                </div>
+                {this.state.isDirector && (
+                  <div className="flex gap-5">
+                    <button
+                      className="rounded-md px-5 text-sixtyPer text-xl bg-tenPer"
+                      type="submit"
+                    >
+                      Save
+                    </button>
+                  </div>
+                )}
               </div>
               <div className="p-5 py-12 bg-sixtyPer rounded-b-lg grid grid-cols-3 gap-4">
                 <div className="flex flex-col">
@@ -92,6 +99,7 @@ class AddEditPopup extends React.Component {
                     type="text"
                     id="firstName"
                     name="firstName"
+                    disabled={!this.state.isDirector}
                     defaultValue={this.state.user.firstName}
                   />
                 </div>
@@ -103,6 +111,7 @@ class AddEditPopup extends React.Component {
                     type="text"
                     id="middleName"
                     name="middleName"
+                    disabled={!this.state.isDirector}
                     defaultValue={this.state.user.middleName}
                   />
                 </div>
@@ -114,6 +123,7 @@ class AddEditPopup extends React.Component {
                     type="text"
                     id="lastName"
                     name="lastName"
+                    disabled={!this.state.isDirector}
                     defaultValue={this.state.user.lastName}
                   />
                 </div>
@@ -125,6 +135,7 @@ class AddEditPopup extends React.Component {
                     type="date"
                     id="dob"
                     name="dob"
+                    disabled={!this.state.isDirector}
                     defaultValue={this.state.user.Dob?.toString()}
                   />
                 </div>
@@ -136,12 +147,19 @@ class AddEditPopup extends React.Component {
                     type="text"
                     id="userName"
                     name="userName"
+                    disabled={!this.state.isDirector}
                     defaultValue={this.state.user.userName}
                   />
                 </div>
                 <div className="flex flex-col">
                   <label htmlFor="gender">Gender</label>
-                  <select className={dropDownStyle} defaultValue={this.state.user.gender} name="gender" id="gender">
+                  <select
+                    className={dropDownStyle}
+                    defaultValue={this.state.user.gender}
+                    name="gender"
+                    disabled={!this.state.isDirector}
+                    id="gender"
+                  >
                     <option value={"Male"}>Male</option>
                     <option value={"Female"}>Female</option>
                   </select>
@@ -154,6 +172,7 @@ class AddEditPopup extends React.Component {
                     type="email"
                     id="email"
                     name="email"
+                    disabled={!this.state.isDirector}
                     defaultValue={this.state.user.email}
                   />
                 </div>
@@ -163,14 +182,13 @@ class AddEditPopup extends React.Component {
                     className={dropDownStyle}
                     name="CPDCenter"
                     id="CPDCenter"
+                    disabled={!this.state.isDirector}
                     defaultValue={
-                      this.state.user
-                        ? this.state.user.CPD.name
-                        : ""
+                      this.state.user ? this.state.user.CPD.id : ""
                     }
                   >
                     {this.state.departments?.map((dep, i) => (
-                      <option value={dep.name}>{dep.name}</option>
+                      <option value={dep.id}>{dep.name}</option>
                     ))}
                   </select>
                 </div>
@@ -182,6 +200,7 @@ class AddEditPopup extends React.Component {
                     type="text"
                     id="profession"
                     name="profession"
+                    disabled={!this.state.isDirector}
                     defaultValue={this.state.user.profession}
                   />
                 </div>
@@ -193,6 +212,7 @@ class AddEditPopup extends React.Component {
                     type="tel"
                     id="phone"
                     name="phone"
+                    disabled={!this.state.isDirector}
                     defaultValue={this.state.user.phone}
                   />
                 </div>

@@ -14,7 +14,8 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   CPD.init({
-    name: DataTypes.STRING
+    name: DataTypes.STRING,
+    request: DataTypes.BOOLEAN
   }, {
     sequelize,
     modelName: 'CPD',

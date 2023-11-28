@@ -19,16 +19,17 @@ class AddEditPopup extends React.Component {
         firstName: e.target[1].value,
         middleName: e.target[2].value,
         lastName: e.target[3].value,
+        Dob: e.target[4].value,
+        userName: e.target[5].value,
         gender: e.target[6].value,
+        email: e.target[7].value,
         departmentId: this.state.departments?.find(
           (dep) => dep.name == e.target[8].value
         ).id,
-        email: e.target[7].value,
-        phone: e.target[10].value,
-        profession: e.target[9].value,
-        Dob: e.target[4].value,
-        userType: e.target[11].checked,
-        userName: e.target[5].value,
+        eduLevel: e.target[9].value,
+        profession: e.target[10].value,
+        phone: e.target[11].value,
+        userType: e.target[12].checked,
       };
     };
     const handleAdd = (e) => {
@@ -60,18 +61,12 @@ class AddEditPopup extends React.Component {
 
     return (
       <div className="">
-        <button
-          onClick={() => this.setState({ childState: true, user: 0 })}
-          className="rounded-md p-2 w-28 text-sixtyPer bg-tenPer mt-4"
-        >
-          Add +
-        </button>
         <Popup
           open={this.state.childState}
           onClose={() => this.setState({ childState: false })}
           modal
         >
-          <div className="w-fit bg-thirtyPer container mx-auto rounded-lg drop-shadow-[0_0px_5px_rgba(0,0,0,.25)]">
+          <div className="w-[75%] bg-thirtyPer container mx-auto rounded-lg drop-shadow-[0_0px_5px_rgba(0,0,0,.25)]">
             {/* <h1 className="text-center text-2xl font-bold mb-8">
               {this.state.user ? "Edit" : "Add"} Staff
             </h1> */}
@@ -81,12 +76,15 @@ class AddEditPopup extends React.Component {
                   {this.state.user ? "Edit" : "Add"} Staff
                 </h1>
                 <div className="flex gap-5">
-                  <button className="rounded-md px-5 text-sixtyPer text-xl bg-tenPer" type="submit">
+                  <button
+                    className="rounded-md px-5 text-sixtyPer text-xl bg-tenPer"
+                    type="submit"
+                  >
                     Save
                   </button>
                 </div>
               </div>
-              <div className="p-5 py-12 bg-sixtyPer rounded-b-lg grid grid-cols-3 gap-4">
+              <div className="p-5 py-12 bg-sixtyPer rounded-b-lg grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="flex flex-col">
                   <label htmlFor="firstName">First Name</label>
                   <input
@@ -144,7 +142,7 @@ class AddEditPopup extends React.Component {
                 </div>
                 <div className="flex flex-col">
                   <label htmlFor="gender">Gender</label>
-                  <select className={dropDownStyle} name="gender" id="gender">
+                  <select className={dropDownStyle} defaultValue={this.state.user.gender} name="gender" id="gender">
                     <option value={"Male"}>Male</option>
                     <option value={"Female"}>Female</option>
                   </select>
@@ -163,7 +161,7 @@ class AddEditPopup extends React.Component {
                 <div className="flex flex-col">
                   <label htmlFor="department">Department</label>
                   <select
-                    className={dropDownStyle}
+                    className={`${dropDownStyle}`}
                     name="department"
                     id="department"
                     defaultValue={
@@ -177,6 +175,19 @@ class AddEditPopup extends React.Component {
                     {this.state.departments?.map((dep, i) => (
                       <option value={dep.name}>{dep.name}</option>
                     ))}
+                  </select>
+                </div>
+                <div className="flex flex-col">
+                  <label htmlFor="department">Edu.Level</label>
+                  <select
+                    className={dropDownStyle}
+                    name="edulevel"
+                    id="edulevel"
+                    defaultValue={this.state.user.eduLevel?.toLowerCase()}
+                  >
+                    <option value="diploma">Diploma</option>
+                    <option value="degree">Degree</option>
+                    <option value="masters">Masters</option>
                   </select>
                 </div>
                 <div className="flex flex-col">
@@ -202,7 +213,7 @@ class AddEditPopup extends React.Component {
                   />
                 </div>
                 <div className="">
-                  <label htmlFor="director">Dierector</label>
+                  <label htmlFor="director">Director</label>
                   <input
                     className="ml-2"
                     type="checkbox"

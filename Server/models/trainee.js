@@ -19,9 +19,12 @@ module.exports = (sequelize, DataTypes) => {
   Trainee.init({
     userId: DataTypes.INTEGER,
     courseId: DataTypes.INTEGER,
-    attendance: DataTypes.INTEGER,
+    attendance: DataTypes.TEXT('long'),
     preTest: DataTypes.INTEGER,
     postTest: DataTypes.INTEGER,
+    isNowTrainer: DataTypes.BOOLEAN,
+    trainerRate:DataTypes.BOOLEAN,
+    courseRate:DataTypes.BOOLEAN,
     certified: DataTypes.BOOLEAN
   }, {
     sequelize,

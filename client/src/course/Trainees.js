@@ -10,6 +10,7 @@ import {
 import { useEffect, useRef, useState } from "react";
 import Traineepop from "./trainerandtrainerpopup/TraineeForm";
 import Cookies from "js-cookie";
+import { Link } from "react-router-dom";
 
 function Trainees(courseId) {
   const childRef = useRef({});
@@ -49,13 +50,15 @@ function Trainees(courseId) {
   }, []);
   return (
     <div className="flex flex-col gap-y-3">
-      {(courseId.userId&&(courseId.isActive!=false)) ? (
-        <button
-          className="w-fit rounded-md p-2 text-sixtyPer bg-tenPer"
-          onClick={assignTraineeHandler}
-        >
-          New Trainees
-        </button>
+      {courseId.userId && courseId.isActive != false ? (
+        <div className="">
+          <button
+            className="w-fit rounded-md p-2 text-sixtyPer bg-tenPer"
+            onClick={assignTraineeHandler}
+          >
+            New Trainees
+          </button>
+        </div>
       ) : (
         <h1 className="text-lg font-medium">Trainees</h1>
       )}
@@ -75,6 +78,23 @@ function TableView(trainees) {
   const headerStyle = "font-bold p-4 text-sm border-b-[1px]";
   const colStyle =
     "text-center py-3 px-2 cursor-pointer border-b-[1px] text-[12px]";
+
+  const toJson = (str) => {
+    const jsn = JSON.parse(str);
+    return jsn;
+  };
+  const populateAtt = (attend) => {
+    const jsnFile = toJson(attend);
+    let percent = 0;
+    jsnFile.dates.forEach((element) => {
+      if (element.attended) {
+        percent += 1;
+      }
+    });
+
+    return (percent / jsnFile.dates.length) * 100;
+  };
+
   console.log(trainees.getTrainees.length);
   return (
     <div>
@@ -86,7 +106,7 @@ function TableView(trainees) {
                 <TableCell class={headerStyle}>Name</TableCell>
                 <TableCell class={headerStyle}>Edu.Level</TableCell>
                 <TableCell class={headerStyle}>Attendance%</TableCell>
-                {(trainees.isFacil&&(trainees.isActive!=false)) ? (
+                {trainees.isFacil && trainees.isActive != false ? (
                   <TableCell class={headerStyle}>Action</TableCell>
                 ) : null}
               </TableRow>
@@ -97,11 +117,16 @@ function TableView(trainees) {
                   <TableCell class={colStyle}>
                     {trainee.User.firstName} {trainee.User.middleName}
                   </TableCell>
-                  <TableCell class={colStyle}>{trainee.User.gender}</TableCell>
                   <TableCell class={colStyle}>
-                    {trainee.attendance ? trainee.attendance : 0}%
+                    {trainee.User.eduLevel}
                   </TableCell>
-                  {(trainees.isFacil&&(trainees.isActive!=false)) ? (
+                  <TableCell class={colStyle}>
+                    {trainee.attendance
+                      ? populateAtt(trainee.attendance)
+                      : 0}
+                    %
+                  </TableCell>
+                  {trainees.isFacil && trainees.isActive != false ? (
                     <TableCell
                       class={`${colStyle} text-rejected`}
                       id={trainee.id}

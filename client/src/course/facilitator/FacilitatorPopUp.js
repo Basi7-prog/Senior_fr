@@ -87,7 +87,7 @@ class FacilitatorPopUp extends React.Component {
                           <TableCell class={colStyle}>
                             {facili.firstName} {facili.middleName}
                           </TableCell>
-                          <TableCell class={colStyle}>Masters</TableCell>
+                          <TableCell class={colStyle}>{facili.eduLevel}</TableCell>
                           <TableCell class={colStyle}>
                             {facili.gender}
                           </TableCell>

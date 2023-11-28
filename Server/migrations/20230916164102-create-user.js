@@ -25,6 +25,10 @@ module.exports = {
         allowNull:false,
         type: Sequelize.STRING
       },
+      eduLevel: {
+        allowNull:false,
+        type: Sequelize.STRING
+      },
       gender: {
         allowNull:false,
         type: Sequelize.STRING(10)

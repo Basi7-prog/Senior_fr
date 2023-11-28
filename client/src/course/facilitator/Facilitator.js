@@ -26,7 +26,7 @@ function Facilitator(cId) {
   };
 
   const assignFacilitatorHandler = () => {
-    fetch("/getTrainersbydep", {
+    fetch(`/getTrainersbydep?courseId=${cId.cId}`, {
       headers: {
         Authorization: `Bearer ${cookies}`,
       },

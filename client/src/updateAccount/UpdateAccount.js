@@ -33,7 +33,7 @@ function UpdateAccount(user) {
       }
     ).then((res)=>{
         if(res.data){
-            navigate(`/menu/${user.isLogedIn.userName}`)
+            navigate(`/${user.isLogedIn.userName}/menu/profile`)
         }
     });
     // console.log("Username:", username);

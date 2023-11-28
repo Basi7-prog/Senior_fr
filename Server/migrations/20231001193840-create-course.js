@@ -23,6 +23,9 @@ module.exports = {
       courseRating: {
         type: Sequelize.DECIMAL
       },
+      allowRating: {
+        type: Sequelize.BOOLEAN
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

@@ -84,7 +84,7 @@ class TrainerPopup extends React.Component {
                         <TableCell class={colStyle}>
                           {trainer.firstName} {trainer.middleName}
                         </TableCell>
-                        <TableCell class={colStyle}>Masters</TableCell>
+                        <TableCell class={colStyle}>{trainer.eduLevel}</TableCell>
                         <TableCell class={colStyle}>{trainer.gender}</TableCell>
                         <TableCell class={colStyle}>{trainer.Dob}</TableCell>
                         <TableCell class={colStyle}>---</TableCell>

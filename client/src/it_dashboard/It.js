@@ -41,7 +41,7 @@ function It() {
           <Menus user={isAutherized}/>
         </div>
       ) : (
-        "fuck outta here"
+        "Loading..."
       )}
     </div>
   );

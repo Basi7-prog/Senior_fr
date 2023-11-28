@@ -19,7 +19,8 @@ module.exports = (sequelize, DataTypes) => {
     proposalId: DataTypes.INTEGER,
     courseStatus: DataTypes.BOOLEAN,
     creditHr: DataTypes.INTEGER,
-    courseRating: DataTypes.DECIMAL
+    courseRating: DataTypes.DECIMAL,
+    allowRating: DataTypes.BOOLEAN
   }, {
     sequelize,
     modelName: 'Course',

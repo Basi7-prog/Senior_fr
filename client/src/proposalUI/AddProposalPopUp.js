@@ -14,9 +14,9 @@ class AddPoposalPopUp extends React.Component {
         return "Pending";
       }
       if (data) {
-        return (<p className="text-accepted">Approved</p>);
+        return <p className="text-accepted">Approved</p>;
       } else {
-        return (<p className="text-rejected">Rejected</p>);
+        return <p className="text-rejected">Rejected</p>;
       }
     };
     const extraInfo = () => {
@@ -39,12 +39,13 @@ class AddPoposalPopUp extends React.Component {
         </div>
       );
     };
-    console.log("depar id",
+    console.log(
+      "depar id",
       this.state.proposal.endDate?.toString(),
       this.state.proposal.startDate?.toString(),
       this.state.department
     );
-      // console.log("departem",this.state.department.id)
+    // console.log("departem",this.state.department.id)
     const today = `${new Date().getFullYear()}-${(new Date().getMonth() + 1)
       .toString()
       .padStart(2, "0")}-${new Date().getDay().toString().padStart(2, "0")}`;
@@ -79,13 +80,15 @@ class AddPoposalPopUp extends React.Component {
 
     return (
       <div className="">
-        <button
-          onClick={() => this.setState({ childState: true, proposal: 0 })}
-          type="submit"
-          className="w-fit rounded-md p-2 text-sixtyPer bg-tenPer"
-        >
-          Add new Proposal
-        </button>
+        {this.state.isDirector && (
+          <button
+            onClick={() => this.setState({ childState: true, proposal: 0 })}
+            type="submit"
+            className="w-fit rounded-md p-2 text-sixtyPer bg-tenPer"
+          >
+            Add new Proposal
+          </button>
+        )}
         <Popup
           open={this.state.childState}
           onClose={() => this.setState({ childState: false })}
@@ -231,7 +234,7 @@ class AddPoposalPopUp extends React.Component {
                       </div>
                     </div>
                   </div>
-                    {this.state.proposal? extraInfo():""}
+                  {this.state.proposal ? extraInfo() : ""}
                 </div>
               </form>
             </div>

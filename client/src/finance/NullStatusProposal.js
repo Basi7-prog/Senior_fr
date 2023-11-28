@@ -1,7 +1,7 @@
 import Cookies from "js-cookie";
 import { useEffect, useState } from "react";
 
-function NullStatusProposal() {
+function NullStatusProposal(user) {
   const [nullProposal, setnullProposal] = useState("");
   const [enteredBudget, setenteredBudget] = useState();
   const [trainingT, settrainingT] = useState(0);
@@ -96,8 +96,8 @@ function NullStatusProposal() {
     // setenteredBudget(e.target.value);
   };
   const comboHandler = (e) => {
-    console.log(e.target.selectedIndex);
-    settrainingT(e.target.selectedIndex);
+    console.log(e.target.value);
+    settrainingT(e.target.value);
   };
   const style1 = "mr-2 font-bold";
   const style2 = "";
@@ -142,7 +142,7 @@ function NullStatusProposal() {
                   {proposal.budget.split(".")[1]}
                 </label>
               </div>
-              {nullProposal.department == "Finance" &&
+              {user.theU.user.userType != ""&&nullProposal.department == "Finance" &&
                 !nullProposal.approveBudgetStatus && (
                   <div className="">
                     <label className={style1}>New budget</label>
@@ -158,7 +158,7 @@ function NullStatusProposal() {
             </div>
             <div className="">
               <label className={style1}>Approve Training Type</label>
-              {nullProposal.department == "Logistics" &&
+              {user.theU.user.userType != ""&&nullProposal.department == "Logistics" &&
               !nullProposal.approveTrainingType ? (
                 <select
                   className=""
@@ -167,7 +167,7 @@ function NullStatusProposal() {
                 >
                   <option value="Self">Self</option>
                   {nullProposal.cpd?.map((cpdName,i)=>(
-                  <option value="Out Source">{cpdName.name}
+                  <option value={cpdName.id}>{cpdName.name}
                   </option>))}
                 </select>
               ) : (
@@ -176,15 +176,15 @@ function NullStatusProposal() {
             </div>
           </div>
           <div className="mt-4 flex flex-row gap-x-3">
-            <button
+            {user.theU.user.userType != ""&&<button
               className="w-fit rounded-md p-2 text-sixtyPer bg-accepted"
               onClick={acceptHandler}
               value={"accept"}
               id={proposal.id}
             >
               Accept
-            </button>
-            {!(nullProposal.department == "Logistics") && (
+            </button>}
+            {user.theU.user.userType != ""&&!(nullProposal.department == "Logistics") && (
               <button
                 className="w-fit rounded-md p-2 text-sixtyPer bg-rejected"
                 onClick={acceptHandler}

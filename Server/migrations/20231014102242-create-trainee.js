@@ -18,13 +18,22 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       attendance: {
-        type: Sequelize.INTEGER
+        type: Sequelize.TEXT('long')
       },
       preTest: {
         type: Sequelize.INTEGER
       },
       postTest: {
         type: Sequelize.INTEGER
+      },
+      isNowTrainer: {
+        type: Sequelize.BOOLEAN
+      },
+      trainerRate: {
+        type: Sequelize.BOOLEAN
+      },
+      courseRate: {
+        type: Sequelize.BOOLEAN
       },
       certified: {
         type: Sequelize.BOOLEAN

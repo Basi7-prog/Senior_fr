@@ -38,24 +38,24 @@ function CourseTable(course) {
 const populate = (course) => {
   const colStyle = "text-center py-3 px-2 cursor-pointer";
   const clicked = (event) => {
-    console.log("clicked inside ", event.target.id);
-    course.clickHandler(event.target.id);
+    console.log("clicked inside ", event);
+    course.clickHandler(event);
   };
   const buttonStyle = "w-fit rounded-md p-2 text-sixtyPer bg-tenPer";
   return (
     <TableBody>
       {course.courseTable?.map((crs, i) => (
-        <TableRow>
-          <TableCell class={colStyle} onClick={clicked} id={i}>
+        <TableRow onClick={()=>{clicked(i)}}>
+          <TableCell class={colStyle}>
             {crs.topic}
           </TableCell>
-          <TableCell class={colStyle} onClick={clicked} id={i}>
-            {crs.CPD?.name}
+          <TableCell class={colStyle}>
+            {crs.CPD?.name?crs.CPD?.name:"Self"}
           </TableCell>
-          <TableCell class={colStyle} onClick={clicked} id={i}>
+          <TableCell class={colStyle}>
             {crs.Course?.courseRating ? crs.Course?.courseRating:"---"}
           </TableCell>
-          <TableCell class={colStyle} onClick={clicked} id={i}>
+          <TableCell class={colStyle}>
             {crs.Course?.courseStatus === null
               ? "Not Started"
               : crs.Course?.courseStatus

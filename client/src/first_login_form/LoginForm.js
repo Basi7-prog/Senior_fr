@@ -15,11 +15,18 @@ function LoginForm(user) {
         console.log(res.data);
         Cookies.set("accessToken", res.data.accessToken, { expires: 1.0004 });
         user.isLogedIn(res.data);
-        navigate(
-          `/${checkNavigator(res.data.department.name)}/${
-            res.data.user.userName
-          }`
-        );
+        // navigate(
+        //   `/${checkNavigator(res.data.department.name)}/${
+        //     res.data.user.userName
+        //   }`
+        // );
+        if (res.data.department != null) {
+          navigate(`/${res.data.user.userName}/menu/profile`);
+        }else if(res.data.cpd!=null){
+          navigate(`/${res.data.user.userName}/menucpd`)
+        }else{
+          navigate(`/${res.data.user.userName}/menuothers/profile`)
+        }
       })
       .catch((err) => console.log(err));
   };
@@ -34,28 +41,24 @@ function LoginForm(user) {
         className="flex flex-col w-96 gap-y-16"
       >
         <div className="flex flex-col gap-y-4">
-          <label className="">
-            User Name
-          </label>
-            <input
-              type="text"
-              name="userName"
-              value={null}
-              className={dropDownStyle}
-              {...register("userName")}
-            />
+          <label className="">User Name</label>
+          <input
+            type="text"
+            name="userName"
+            value={null}
+            className={dropDownStyle}
+            {...register("userName")}
+          />
         </div>
         <div className="flex flex-col gap-y-4">
-          <label>
-            password
-          </label>
-            <input
-              type="password"
-              name="password"
-              className={dropDownStyle}
-              value={null}
-              {...register("password")}
-            />
+          <label>password</label>
+          <input
+            type="password"
+            name="password"
+            className={dropDownStyle}
+            value={null}
+            {...register("password")}
+          />
         </div>
         <button
           type="submit"
@@ -64,7 +67,7 @@ function LoginForm(user) {
           Login
         </button>
       </form>
-      </div>
+    </div>
   );
 }
 
