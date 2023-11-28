@@ -1017,7 +1017,8 @@ app.get("/gettrainerforrate", authenticateToken, async (req, res) => {
 app.post("/ratetrainer", authenticateToken, async (req, res) => {
   console.log("rated trainers", req.body.enteredValue);
   const ratedValue = req.body.enteredValue;
-  ratedValue.forEach(async (element) => {
+  let isDone = false;
+  ratedValue.forEach(async (element, i) => {
     element.data.sort((a, b) => {
       if (a.key < b.key) {
         return -1;
@@ -1030,7 +1031,11 @@ app.post("/ratetrainer", authenticateToken, async (req, res) => {
     console.log(element);
     if (element.data.length == 8) {
       await Trainee.findOne({
-        where: { userId: req.query.uId, trainerRate: false },
+        where: {
+          userId: req.query.uId,
+          courseId: req.query.cId,
+          trainerRate: false,
+        },
       }).then(async (foundT) => {
         if (foundT != null) {
           await trainerEvaluation
@@ -1069,10 +1074,18 @@ app.post("/ratetrainer", authenticateToken, async (req, res) => {
                 tE.CRC_Decipline =
                   parseInt(element.data[7].rate) + parseInt(tE.CRC_Decipline);
                 tE.voteAmount = parseInt(tE.voteAmount) + 1;
-                tE.save().then((resp) => {
-                  foundT.trainerRate = true;
-                  foundT.save();
-                  res.json(true);
+                await tE.save().then(async (resp) => {
+                  if (resp) {
+                    foundT.trainerRate = true;
+                    await foundT.save();
+                    if (ratedValue.length - 1 == i) {
+                      res.json(true);
+                    }
+                    isDone = true;
+                    // res.json(true);
+                  } else {
+                    isDone = false;
+                  }
                 });
               } else {
                 await trainerEvaluation
@@ -1093,13 +1106,18 @@ app.post("/ratetrainer", authenticateToken, async (req, res) => {
                     CRC_Decipline: element.data[7].rate,
                     voteAmount: 1,
                   })
-                  .then((resp) => {
+                  .then(async (resp) => {
+                    foundT.trainerRate = true;
+                    await foundT.save();
                     if (resp) {
-                      foundT.trainerRate = true;
-                      foundT.save();
-                      res.json(true);
+                      if (ratedValue.length - 1 == i) {
+                        res.json(true);
+                      }
+                      isDone = true;
+                      // res.json(true);
                     } else {
-                      res.json(false);
+                      isDone = false;
+                      // res.json(false);
                     }
                     console.log(resp);
                   });
@@ -1111,6 +1129,9 @@ app.post("/ratetrainer", authenticateToken, async (req, res) => {
       res.json(false);
     }
   });
+  // if (isDone) {
+  //   res.json(true);
+  // }
 });
 
 app.get("/getcourseforrate", authenticateToken, async (req, res) => {
@@ -1234,7 +1255,11 @@ app.put("/ratecourse", authenticateToken, async (req, res) => {
       );
     }
     foundTrainee.courseRate = true;
-    await foundTrainee.save();
+    await foundTrainee.save().then((tResp) => {
+      if (tResp) {
+        res.json(true);
+      }
+    });
   });
 });
 
