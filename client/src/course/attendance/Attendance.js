@@ -16,6 +16,7 @@ function Attendance(data) {
   const [dateHeader, setDateHeader] = useState([]);
   const [users, setUsers] = useState([]);
   const [attended, setAttended] = useState([]);
+  const [isFacil, setIsfacil] = useState(false);
   const style = "text-sm py-2 font-normal text-center";
   const hStyle = "py-4 text-sm font-semibold";
 
@@ -69,6 +70,7 @@ function Attendance(data) {
           }
         });
         console.log(attended);
+        setIsfacil(data.isFacil)
       });
   }, []);
 
@@ -87,7 +89,7 @@ function Attendance(data) {
   }, [attended]);
 
   const onSubmitHandler = () => {
-    axios.post(
+    if(isFacil){axios.post(
       "/setattendance",
       { attendance: attended, course: data.course },
       {
@@ -95,7 +97,7 @@ function Attendance(data) {
           Authorization: `Bearer ${cookies}`,
         },
       }
-    );
+    );}
   };
 
   return (
@@ -126,6 +128,7 @@ function Attendance(data) {
                             type="checkbox"
                             defaultChecked={attend.attended}
                             id={j}
+                            disabled={!isFacil}
                             onChange={(e) => {
                               onChangeHandler(user?.id, i, j, e.target.checked);
                             }}
@@ -149,9 +152,9 @@ function Attendance(data) {
               </TableBody>
             </Table>
           </TableContainer>
-          <button className={""} onClick={onSubmitHandler}>
+          {isFacil&&<button className={""} onClick={onSubmitHandler}>
             Submit
-          </button>
+          </button>}
         </div>
       ):<h1 className="text-rejected text-center">No Trainees Registered</h1>}
     </div>

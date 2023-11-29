@@ -10,6 +10,9 @@ function Certification(datas) {
   const [topic, setTopic] = useState();
   const params = useParams();
 
+//   const getFinishedTrainees=()=>{
+
+//   }
   useEffect(() => {
     axios
       .get(`/getTrainees?courseId=${params.id}`, {
@@ -23,7 +26,7 @@ function Certification(datas) {
           setTopic(resp.data[0].Course.Proposal.topic)
         }
       });
-  }, []);
+  }, [loading]);
 
   const generateCertification=(tId)=>{
     setLoading(true);

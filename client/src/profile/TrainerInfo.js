@@ -28,7 +28,7 @@ function TrainerInfo(user) {
               </h1>
             </div>
           )}
-          <div className={"grid grid-2-cols mt-2 w-fit"}>
+          <div className={"grid grid-cols-2 gap-3 mt-2 w-fit"}>
             {trainer?.map((tData) => (
               <div className="bg-black rounded-lg">
                 <div className="flex text-sixtyPer px-7 py-2">
@@ -40,13 +40,13 @@ function TrainerInfo(user) {
                   )}
                 </div>
                 <div className="grid grid-cols-2 gap-2 text-sm bg-white pt-3 px-2">
-                  <div className="flex gap-x-2">
+                  <div className="flex gap-x-2 border-r-2">
                     <label className="">Assigned by</label>
                     <label className="text-accepted">{tData.assignedBy}</label>
                   </div>
                   <div className="flex gap-x-2">
                     <label className="">Ratings</label>
-                    <label className="">{tData.rating}</label>
+                    <label className="">{tData.rating}%</label>
                   </div>
                 </div>
               </div>

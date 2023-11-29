@@ -46,8 +46,9 @@ function Trainees(courseId) {
   };
 
   useEffect(() => {
+    setalltrainees({})
     addTrainee();
-  }, []);
+  }, [courseId.cId]);
   return (
     <div className="flex flex-col gap-y-3">
       {courseId.userId && courseId.isActive != false ? (
@@ -63,13 +64,15 @@ function Trainees(courseId) {
         <h1 className="text-lg font-medium">Trainees</h1>
       )}
       <Traineepop ref={childRef} />
-      <TableView
-        getTrainees={alltrainees}
-        setTrainees={setalltrainees}
-        removeT={remove}
-        isFacil={courseId.userId}
-        isActive={courseId.isActive}
-      />
+      
+        <TableView
+          getTrainees={alltrainees}
+          setTrainees={setalltrainees}
+          removeT={remove}
+          isFacil={courseId.userId}
+          isActive={courseId.isActive}
+        />
+      
     </div>
   );
 }
@@ -103,6 +106,7 @@ function TableView(trainees) {
           <Table>
             <TableHead>
               <TableRow>
+                <TableCell class={headerStyle}>#</TableCell>
                 <TableCell class={headerStyle}>Name</TableCell>
                 <TableCell class={headerStyle}>Edu.Level</TableCell>
                 <TableCell class={headerStyle}>Attendance%</TableCell>
@@ -114,6 +118,7 @@ function TableView(trainees) {
             <TableBody>
               {trainees.getTrainees?.map((trainee, i) => (
                 <TableRow>
+                  <TableCell class={colStyle}>{i + 1}</TableCell>
                   <TableCell class={colStyle}>
                     {trainee.User.firstName} {trainee.User.middleName}
                   </TableCell>
@@ -121,10 +126,7 @@ function TableView(trainees) {
                     {trainee.User.eduLevel}
                   </TableCell>
                   <TableCell class={colStyle}>
-                    {trainee.attendance
-                      ? populateAtt(trainee.attendance)
-                      : 0}
-                    %
+                    {trainee.attendance ? populateAtt(trainee.attendance) : 0}%
                   </TableCell>
                   {trainees.isFacil && trainees.isActive != false ? (
                     <TableCell

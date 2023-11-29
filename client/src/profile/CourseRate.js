@@ -16,7 +16,6 @@ function CourseRate(user) {
   const [cols, setCols] = useState();
   const [rows, setRows] = useState();
   const [rateValues, setRateValues] = useState([]);
-  const [rated, setRated] = useState(false);
 
   useEffect(() => {
     axios
@@ -63,23 +62,23 @@ function CourseRate(user) {
 
   const submitRate = (e) => {
     e.preventDefault();
-    const finalValue = [];
-    cols.forEach((col) => {
-      const values = [];
-      rateValues.forEach((row) => {
-        if (row.value == col) {
-          values.push(1);
-        } else {
-          values.push(0);
-        }
-      });
-      finalValue.push({ type: col, values: values });
-    });
-    console.log("the final value", finalValue);
+    // const finalValue = [];
+    // cols.forEach((col) => {
+    //   const values = [];
+    //   rateValues.forEach((row) => {
+    //     if (row.value == col) {
+    //       values.push(1);
+    //     } else {
+    //       values.push(0);
+    //     }
+    //   });
+    //   finalValue.push({ type: col, values: values });
+    // });
+    // console.log("the final value", finalValue);
     axios
       .put(
         `/ratecourse?cId=${user.theC.cId}&uId=${user.theU.theU.theU.user.id}`,
-        { finalValue },
+        { rateValues },
         {
           headers: {
             Authorization: `Bearer ${cookies}`,
@@ -88,13 +87,13 @@ function CourseRate(user) {
       )
       .then((resp) => {
         if (resp.data) {
-          setRated(true);
+          window.location.reload();
         }
       });
   };
   return (
     <>
-      {rows && !rated && (
+      {rows && (
         <div className="">
           <div className="mb-14">{""}</div>
           <h1 className="font-semibold text-xl">
@@ -127,7 +126,7 @@ function CourseRate(user) {
                             type="radio"
                             name={`group${i}`}
                             className="border-[1px] border-black text-center rounded-md"
-                            onChange={(e) => onValueChange(values, fOptions)}
+                            onChange={(e) => onValueChange(values, key+1)}
                             required={true}
                           />
                         </TableCell>

@@ -34,8 +34,9 @@ function Trainers(cId) {
   };
 
   useEffect(() => {
+    setallTrainers({});
     addTrainer();
-  }, []);
+  }, [cId.cId]);
 
   const remove = (e) => {
     fetch(`/removetrainer?trainerId=${e.target.id}`, {
@@ -69,7 +70,7 @@ function Trainers(cId) {
         setassignClick(true);
       }}
     >
-      {cId.userId && (cId.isActive!=false) ? (
+      {cId.userId && cId.isActive != false ? (
         <button
           className="w-fit rounded-md p-2 text-sixtyPer bg-tenPer"
           onClick={assignTrainerHandler}
@@ -103,7 +104,7 @@ function TableView(allTrainers) {
             <TableCell class={headerStyle}>Name</TableCell>
             {/* <TableCell class={headerStyle}>Edu.Level</TableCell> */}
             <TableCell class={headerStyle}>Approval Rate%</TableCell>
-            {(allTrainers.isFacil&&(allTrainers.isActive!=false)) ? (
+            {allTrainers.isFacil && allTrainers.isActive != false ? (
               <TableCell class={headerStyle}>Action</TableCell>
             ) : null}
           </TableRow>
@@ -117,9 +118,9 @@ function TableView(allTrainers) {
                   </TableCell>
                   {/* <TableCell class={colStyle}>{trainer.User.gender}</TableCell> */}
                   <TableCell class={colStyle}>
-                    {trainer.User.rating ? trainer.User.rating : 0}%
+                    {trainer.rating ? trainer.rating : 0}%
                   </TableCell>
-                  {(allTrainers.isFacil&&(allTrainers.isActive!=false)) ? (
+                  {allTrainers.isFacil && allTrainers.isActive != false ? (
                     <TableCell
                       class={`${colStyle} text-rejected`}
                       id={trainer.id}

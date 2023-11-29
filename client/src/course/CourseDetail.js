@@ -101,6 +101,7 @@ function CourseDetails(course) {
               <Attendance
                 theU={course.theU}
                 course={course.courseD.Course.id}
+                isFacil={isFacil}
               />
             }
           />

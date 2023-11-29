@@ -18,18 +18,18 @@ module.exports = (sequelize, DataTypes) => {
   }
   CourseRating.init({
     courseId:DataTypes.INTEGER,
-    OverallTrainingContent: DataTypes.INTEGER,
-    TrainingMethods: DataTypes.INTEGER,
-    TrainersFacilitationSkill: DataTypes.INTEGER,
-    ParticipationStatus: DataTypes.INTEGER,
-    RefreshmentServices: DataTypes.INTEGER,
-    TrainingVenue: DataTypes.INTEGER,
-    TrainingMaterialsPreparation: DataTypes.INTEGER,
-    ExperienceSharing: DataTypes.INTEGER,
-    TimeAllocationForEachCourseTitle: DataTypes.INTEGER,
-    OverallTrainingFacilitation: DataTypes.INTEGER,
-    OverallTrainingCoordination: DataTypes.INTEGER,
-    ratingTypeId: DataTypes.INTEGER
+    excellent: DataTypes.INTEGER,
+    veryGood: DataTypes.INTEGER,
+    UnableToDecide: DataTypes.INTEGER,
+    poor: DataTypes.INTEGER,
+    veryPoor: DataTypes.INTEGER,
+    ratingTypeId: DataTypes.INTEGER,
+    ExpectedNoOfParticipants: DataTypes.INTEGER,
+    TotalParticipanted: DataTypes.INTEGER,
+    ResponseRate: DataTypes.INTEGER,
+    SatisfactionRate: DataTypes.INTEGER,
+    UnableToDecideRate: DataTypes.INTEGER,
+    PoorSatisfactionRate: DataTypes.INTEGER
   }, {
     sequelize,
     modelName: 'CourseRating',

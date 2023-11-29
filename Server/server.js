@@ -1149,23 +1149,17 @@ app.get("/getcourseforrate", authenticateToken, async (req, res) => {
     ],
   }).then(async (resp) => {
     if (resp != null) {
-      let cols = [];
-      const rows = [
-        "Overall training content",
-        "Training methods",
-        "Trainers facilitation skill",
-        "Participation status",
-        "Refreshment services",
-        "Training venue",
-        "Training materials preparation",
-        "Experience sharing",
-        "Time allocation for each course title",
-        "Overall  training facilitation",
-        "Overall  training coordination",
+      let rows = [];
+      const cols = [
+        "Excellent",
+        "Very Good",
+        "Unable to decide",
+        "Poor",
+        "Very Poor",
       ];
       await rating_type.findAll().then((ratingT) => {
         ratingT.forEach((element) => {
-          cols.push(element.type);
+          rows.push(element.type);
         });
       });
       res.json({ cols, rows });
@@ -1174,7 +1168,7 @@ app.get("/getcourseforrate", authenticateToken, async (req, res) => {
 });
 
 app.put("/ratecourse", authenticateToken, async (req, res) => {
-  const ratings = req.body.finalValue;
+  const ratings = req.body.rateValues;
   let success = false;
   console.log(ratings);
   console.log(req.query.cId, req.query.uId);
@@ -1188,17 +1182,11 @@ app.put("/ratecourse", authenticateToken, async (req, res) => {
             ratings.forEach(async (element, i) => {
               await CourseRating.create({
                 courseId: req.query.cId,
-                OverallTrainingContent: element.values[0],
-                TrainingMethods: element.values[1],
-                TrainersFacilitationSkill: element.values[2],
-                ParticipationStatus: element.values[3],
-                RefreshmentServices: element.values[4],
-                TrainingVenue: element.values[5],
-                TrainingMaterialsPreparation: element.values[6],
-                ExperienceSharing: element.values[7],
-                TimeAllocationForEachCourseTitle: element.values[8],
-                OverallTrainingFacilitation: element.values[9],
-                OverallTrainingCoordination: element.values[10],
+                excellent: element.value == 1 && 1,
+                veryGood: element.value == 2 && 1,
+                UnableToDecide: element.value == 3 && 1,
+                poor: element.value == 4 && 1,
+                veryPoor: element.value == 5 && 1,
                 ratingTypeId: i + 1,
               }).then(async (resp) => {
                 console.log("success is ", success);
@@ -1211,38 +1199,20 @@ app.put("/ratecourse", authenticateToken, async (req, res) => {
             ratings.forEach(async (element, i) => {
               foundC.forEach(async (rates) => {
                 if (rates.ratingTypeId == i + 1) {
-                  rates.OverallTrainingContent =
-                    parseInt(rates.OverallTrainingContent) +
-                    parseInt(element.values[0]);
-                  rates.TrainingMethods =
-                    parseInt(rates.TrainingMethods) +
-                    parseInt(element.values[1]);
-                  rates.TrainersFacilitationSkill =
-                    parseInt(rates.TrainersFacilitationSkill) +
-                    parseInt(element.values[2]);
-                  rates.ParticipationStatus =
-                    parseInt(rates.ParticipationStatus) +
-                    parseInt(element.values[3]);
-                  rates.RefreshmentServices =
-                    parseInt(rates.RefreshmentServices) +
-                    parseInt(element.values[4]);
-                  rates.TrainingVenue =
-                    parseInt(rates.TrainingVenue) + parseInt(element.values[5]);
-                  rates.TrainingMaterialsPreparation =
-                    parseInt(rates.TrainingMaterialsPreparation) +
-                    parseInt(element.values[6]);
-                  rates.ExperienceSharing =
-                    parseInt(rates.ExperienceSharing) +
-                    parseInt(element.values[7]);
-                  rates.TimeAllocationForEachCourseTitle =
-                    parseInt(rates.TimeAllocationForEachCourseTitle) +
-                    parseInt(element.values[8]);
-                  rates.OverallTrainingFacilitation =
-                    parseInt(rates.OverallTrainingFacilitation) +
-                    parseInt(element.values[9]);
-                  rates.OverallTrainingCoordination =
-                    parseInt(rates.OverallTrainingCoordination) +
-                    parseInt(element.values[10]);
+                  rates.excellent =
+                    parseInt(rates.excellent) +
+                    parseInt(element.value == 1 ? 1 : 0);
+                  rates.veryGood =
+                    parseInt(rates.veryGood) +
+                    parseInt(element.value == 2 ? 1 : 0);
+                  rates.UnableToDecide =
+                    parseInt(rates.UnableToDecide) +
+                    parseInt(element.value == 3 ? 1 : 0);
+                  rates.poor =
+                    parseInt(rates.poor) + parseInt(element.value == 4 ? 1 : 0);
+                  rates.veryPoor =
+                    parseInt(rates.veryPoor) +
+                    parseInt(element.value == 5 ? 1 : 0);
                   await rates.save().then((svedResp) => {
                     success = true;
                     console.log("edited");
@@ -1291,9 +1261,11 @@ app.post("/endcourse/:cId", authenticateToken, async (req, res) => {
   await Course.update(
     { courseStatus: false },
     { where: { id: req.params.cId } }
-  ).then((resp) => {
+  ).then(async (resp) => {
     if (resp) {
       res.json(true);
+      await evaluateTrainer(resp.id);
+      await courseRatings(resp.id);
     }
   });
 });
@@ -1412,6 +1384,21 @@ app.get("/gettrainerinfo/:id", authenticateToken, async (req, res) => {
   });
 });
 
+app.get("/gettraineereport", authenticateToken, async (req, res) => {
+  console.log(new Date(req.query.from), new Date(req.query.to));
+  await Course.findAll({
+    include: {
+      model: Trainee,
+      include: { model: User, attributes: ["gender"] },
+    },
+    where: {
+      createdAt: { [Sequelize.Op.between]: [req.query.from, req.query.to] },
+    },
+  }).then((resp) => {
+    // console.log(resp);
+    res.json(resp);
+  });
+});
 /*login by taking user name and password, 
 and generate a new token based on the user name, password and department*/
 app.post("/login", async (req, res) => {
@@ -1600,6 +1587,128 @@ app.get("/isUser", authenticateToken, async (req, res) => {
     );
   }
 });
+
+const evaluateTrainer = async (cId) => {
+  try {
+    await trainerEvaluation
+      .findAll({ where: { courseId: cId }, include: { model: Trainer } })
+      .then(async (resp) => {
+        if (resp.length > 0) {
+          resp.forEach(async (element) => {
+            element.Personality_keeping_including_wearing_style =
+              parseInt(element.Personality_keeping_including_wearing_style) /
+              element.voteAmount;
+            element.Training_materials_preparation_status =
+              parseInt(element.Training_materials_preparation_status) /
+              element.voteAmount;
+            element.Training_methods_used =
+              parseInt(element.Training_methods_used) / element.voteAmount;
+            element.Facilitation_skill =
+              parseInt(element.Facilitation_skill) / element.voteAmount;
+            element.Comprehensive_Knowledge_regarding_to_course_title =
+              parseInt(
+                element.Comprehensive_Knowledge_regarding_to_course_title
+              ) / element.voteAmount;
+            element.Comprehensive_practical_skill_regarding_to_course_title =
+              parseInt(
+                element.Comprehensive_practical_skill_regarding_to_course_title
+              ) / element.voteAmount;
+            element.Punctuality =
+              parseInt(element.Punctuality) / element.voteAmount;
+            element.CRC_Decipline =
+              parseInt(element.CRC_Decipline) / element.voteAmount;
+            element.Total_score_out =
+              parseFloat(element.Personality_keeping_including_wearing_style) +
+              parseFloat(element.Training_materials_preparation_status) +
+              parseFloat(element.Training_methods_used) +
+              parseFloat(element.Facilitation_skill) +
+              parseFloat(
+                element.Comprehensive_Knowledge_regarding_to_course_title
+              ) +
+              parseFloat(
+                element.Comprehensive_practical_skill_regarding_to_course_title
+              ) +
+              parseFloat(element.Punctuality) +
+              parseFloat(element.CRC_Decipline);
+            if (element.Total_score_out > 55) {
+              element.Decision_made_for_the_next_training_Competent_Not_competent = true;
+            } else {
+              element.Decision_made_for_the_next_training_Competent_Not_competent = false;
+            }
+            await element.save().then(async (resT) => {
+              await Trainer.update(
+                { rating: resT.Total_score_out },
+                { where: { id: element.trainerId } }
+              );
+            });
+          });
+        }
+        console.log(resp.length);
+      });
+    return true;
+  } catch (err) {
+    throw err;
+  }
+};
+
+const courseRatings = async (cId) => {
+  try {
+    let expectedP = 0;
+    let totalRate = 0;
+    let rateLength = 0;
+    await Proposal.findOne({
+      include: { model: Course, where: { id: cId } },
+    }).then((expected) => (expectedP = expected.numberOfTrainee));
+
+    await CourseRating.findAll({ where: { courseId: cId } }).then(
+      async (resp) => {
+        if (resp.length > 0) {
+          rateLength = resp.length;
+          resp.forEach(async (element) => {
+            const totalP =
+              parseInt(element.excellent) +
+              parseInt(element.veryGood) +
+              parseInt(element.UnableToDecide) +
+              parseInt(element.poor) +
+              parseInt(element.veryPoor);
+            const abledAnswer =
+              parseInt(element.excellent) +
+              parseInt(element.veryGood) +
+              parseInt(element.poor) +
+              parseInt(element.veryPoor);
+
+            element.ExpectedNoOfParticipants = expectedP;
+            element.TotalParticipanted = totalP;
+            element.ResponseRate = (totalP / expectedP) * 100;
+            element.SatisfactionRate =
+              ((parseInt(element.excellent) + parseInt(element.veryGood)) /
+                abledAnswer) *
+              100;
+            totalRate +=
+              ((parseInt(element.excellent) + parseInt(element.veryGood)) /
+                abledAnswer) *
+              100;
+            element.UnableToDecideRate =
+              (parseInt(element.UnableToDecide) / totalP) * 100;
+            element.PoorSatisfactionRate =
+              ((parseInt(element.poor) + parseInt(element.veryPoor)) /
+                abledAnswer) *
+              100;
+            await element.save();
+            // console.log("not done", expectedP);
+          });
+        }
+      }
+    );
+    await Course.update(
+      { courseRating: totalRate / rateLength },
+      { where: { id: cId } }
+    );
+    return true;
+  } catch (error) {
+    throw error;
+  }
+};
 
 //check authentication token
 function authenticateToken(req, res, next) {

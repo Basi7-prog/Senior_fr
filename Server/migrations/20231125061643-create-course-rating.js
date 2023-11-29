@@ -13,52 +13,46 @@ module.exports = {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      OverallTrainingContent: {
+      excellent: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      TrainingMethods: {
+      veryGood: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      TrainersFacilitationSkill: {
+      UnableToDecide: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      ParticipationStatus: {
+      poor: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      RefreshmentServices: {
-        allowNull: false,
-        type: Sequelize.INTEGER
-      },
-      TrainingVenue: {
-        allowNull: false,
-        type: Sequelize.INTEGER
-      },
-      TrainingMaterialsPreparation: {
-        allowNull: false,
-        type: Sequelize.INTEGER
-      },
-      ExperienceSharing: {
-        allowNull: false,
-        type: Sequelize.INTEGER
-      },
-      TimeAllocationForEachCourseTitle: {
-        allowNull: false,
-        type: Sequelize.INTEGER
-      },
-      OverallTrainingFacilitation: {
-        allowNull: false,
-        type: Sequelize.INTEGER
-      },
-      OverallTrainingCoordination: {
+      veryPoor: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
       ratingTypeId: {
         allowNull: false,
+        type: Sequelize.INTEGER
+      },
+      ExpectedNoOfParticipants: {
+        type: Sequelize.INTEGER
+      },
+      TotalParticipanted: {
+        type: Sequelize.INTEGER
+      },
+      ResponseRate: {
+        type: Sequelize.INTEGER
+      },
+      SatisfactionRate: {
+        type: Sequelize.INTEGER
+      },
+      UnableToDecideRate : {
+        type: Sequelize.INTEGER
+      },
+      PoorSatisfactionRate : {
         type: Sequelize.INTEGER
       },
       createdAt: {

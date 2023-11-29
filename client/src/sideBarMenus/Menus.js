@@ -7,6 +7,7 @@ import ItDashCpd from "../it_dashboard/cpd/ItDashboardCpd";
 import Cookies from "js-cookie";
 import { Link, Route, Routes, useParams } from "react-router-dom";
 import Profile from "../profile/Profile";
+import Reports from "../reports/Reports";
 
 function Menus() {
   const checkUserAuth = () => {
@@ -68,6 +69,13 @@ function Menus() {
               >
                 Courses
               </Link>
+              <Link
+                className={classcss}
+                to={`/${params.id}/menu/reports`}
+                onClick={()=>{ setVisisble(false) }}
+              >
+                Reports
+              </Link>
             </div>
           </div>
             <div className=" border-l-2 w-full overflow-hidden pt-8">
@@ -84,6 +92,7 @@ function Menus() {
               <Route path="/proposals" element={<ProposalForm theU={user}/>} />
               <Route path="/reques_proposals" element={<NullSP theU={user}/>} />
               <Route path="/profile" element={<Profile  theU={user}/>} />
+              <Route path="/reports" element={<Reports  theU={user}/>} />
             </Routes>
           </div>
           </div>
