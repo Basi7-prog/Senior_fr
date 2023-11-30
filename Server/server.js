@@ -1390,10 +1390,17 @@ app.get("/gettrainerinfo/:id", authenticateToken, async (req, res) => {
 app.get("/gettraineereport", authenticateToken, async (req, res) => {
   console.log(new Date(req.query.from), new Date(req.query.to));
   await Course.findAll({
-    include: {
-      model: Trainee,
-      include: { model: User, attributes: ["gender"] },
-    },
+    include: [
+      {
+        model: Trainee,attributes:["preTest","postTest"],
+        include: { model: User, attributes: ["gender","Dob","eduLevel"] },
+      },
+      {
+        model: Proposal,
+        attributes: ["budget"],
+        include: { model: Department, attributes: ["name"] },
+      },
+    ],
     where: {
       createdAt: { [Sequelize.Op.between]: [req.query.from, req.query.to] },
     },
@@ -1454,12 +1461,12 @@ app.get(
               model: User,
               attributes: ["firstName", "middleName", "lastName"],
             },
-            attributes:["assignedBy"]
+            attributes: ["assignedBy"],
           },
         },
         {
           model: CourseRating,
-          include: { model: rating_type,attributes:["type"] },
+          include: { model: rating_type, attributes: ["type"] },
         },
         {
           model: Proposal,
