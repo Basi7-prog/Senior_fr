@@ -5,7 +5,7 @@ import CourseDetails from "./CourseDetail";
 import Attendance from "./attendance/Attendance";
 import { Route, Routes, Link } from "react-router-dom";
 import CourseTab from "./CourseTab";
-import CourseSummary from "./TraineeSummary";
+import CourseSummary from "./ttCourse/summary/Summary";
 
 function Courses(user) {
   const cookies = Cookies.get("accessToken");

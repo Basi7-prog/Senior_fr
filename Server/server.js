@@ -20,6 +20,9 @@ const {
 } = require("./models");
 const jwt = require("jsonwebtoken");
 const Sequelize = require("sequelize");
+const finDep = "Finance";
+const logiDep = "Logistics";
+const humanDep = "Human Resource";
 // const proposal = require("./models/proposal");
 
 app.use(cors());
@@ -117,11 +120,11 @@ app.get("/fetchAllProposal", authenticateToken, async (req, res) => {
 app.get("/fetchNullProposal", authenticateToken, async (req, res) => {
   const isPrivilaged = req.user.department;
   const finLog = async () => {
-    if (isPrivilaged == "Finance") {
+    if (isPrivilaged == finDep) {
       return await Proposal.findAll({
         where: { approveBudgetStatus: null },
       });
-    } else if (isPrivilaged == "Logistics") {
+    } else if (isPrivilaged == logiDep) {
       return await Proposal.findAll({
         where: { venueApprovedRejectedDate: null },
       });
@@ -152,7 +155,7 @@ app.get("/fetchNullProposal", authenticateToken, async (req, res) => {
 
 //to approve budgets(by changing budget, assign date and status), for finance
 app.post("/proposalApprove", authenticateToken, (req, res) => {
-  if (req.user.department == "Finance") {
+  if (req.user.department == finDep) {
     console.log(req.body);
     Proposal.findOne({ where: { id: req.body.budget.id } }).then((approve) => {
       approve.approveBudgetStatus = true;
@@ -164,7 +167,7 @@ app.post("/proposalApprove", authenticateToken, (req, res) => {
         res.json({});
       });
     });
-  } else if (req.user.department == "Logistics") {
+  } else if (req.user.department == logiDep) {
     console.log(req.body);
     Proposal.findOne({ where: { id: req.body.budget.id } }).then((approve) => {
       approve.CPDId = req.body.tType == 0 ? null : req.body.tType;
@@ -180,7 +183,7 @@ app.post("/proposalApprove", authenticateToken, (req, res) => {
 
 //to reject budgets(by changing budget, assign date and status), for finance
 app.post("/proposalReject", authenticateToken, (req, res) => {
-  if (req.user.department == "Finance") {
+  if (req.user.department == finDep) {
     console.log(req.body);
     Proposal.findOne({ where: { id: req.body.budget.id } }).then((approve) => {
       approve.approveBudgetStatus = false;
@@ -191,7 +194,7 @@ app.post("/proposalReject", authenticateToken, (req, res) => {
         res.json({});
       });
     });
-  } else if (req.user.department == "Logistics") {
+  } else if (req.user.department == logiDep) {
     console.log(req.body);
     Proposal.findOne({ where: { id: req.body.budget.id } }).then((approve) => {
       approve.CPDId = req.body.tType;
@@ -1399,6 +1402,79 @@ app.get("/gettraineereport", authenticateToken, async (req, res) => {
     res.json(resp);
   });
 });
+
+app.get("/getalldonecourse", authenticateToken, async (req, res) => {
+  await User.findOne({
+    where: { userName: req.user.userName },
+    include: { model: Department, where: { name: humanDep } },
+  }).then(async (resp) => {
+    if (resp) {
+      await Course.findAll({
+        attributes: ["id", "courseRating"],
+        include: {
+          model: Proposal,
+          attributes: ["topic", "endDate"],
+          include: { model: Department, attributes: ["name"] },
+        },
+        where: { courseStatus: false },
+      }).then(async (courseRes) => {
+        if (courseRes.length > 0) {
+          res.json(courseRes);
+        }
+      });
+    }
+  });
+});
+
+app.get(
+  "/getallcoursesummarization/:id",
+  authenticateToken,
+  async (req, res) => {
+    console.log(req.params.id);
+    const cols = [
+      "Personality keeping including wearing style(From  5pts)",
+      "Training materials preparation status(From 15pts)",
+      "Training methods used(From 15pts)",
+      "Facilitation skill(From 15pts)",
+      "Comprehensive Knowledge regarding to course title(From 15pts)",
+      "Comprehensive practical skill regarding to course title(From 15pts)",
+      "Punctuality(From 10pts)",
+      "CRC/Decipline(From 10pts)",
+      "Total score out of 100",
+      "Decision made for the next training Competent Not competent",
+    ];
+    await Course.findOne({
+      where: { id: req.params.id },
+      include: [
+        {
+          model: trainerEvaluation,
+          include: {
+            model: Trainer,
+            include: {
+              model: User,
+              attributes: ["firstName", "middleName", "lastName"],
+            },
+            attributes:["assignedBy"]
+          },
+        },
+        {
+          model: CourseRating,
+          include: { model: rating_type,attributes:["type"] },
+        },
+        {
+          model: Proposal,
+          attributes: ["topic"],
+          include: { model: Department, attributes: ["name"] },
+        },
+      ],
+    }).then((resp) => {
+      if (resp) {
+        res.json({ course: resp, trainerCols: cols });
+      }
+    });
+  }
+);
+
 /*login by taking user name and password, 
 and generate a new token based on the user name, password and department*/
 app.post("/login", async (req, res) => {

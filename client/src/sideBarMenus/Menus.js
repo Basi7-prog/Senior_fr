@@ -8,8 +8,12 @@ import Cookies from "js-cookie";
 import { Link, Route, Routes, useParams } from "react-router-dom";
 import Profile from "../profile/Profile";
 import Reports from "../reports/Reports";
+import Summary from "../course/ttCourse/summary/Summary";
 
 function Menus() {
+  const humanResource="human resource"
+  const logistic="logistics"
+  const finance="finance"
   const checkUserAuth = () => {
     return false;
   };
@@ -44,7 +48,7 @@ function Menus() {
               <Link to="profile" className={classcss} onClick={() => setclicked(0)}>
                 Profile
               </Link>
-              {(depName == "finance" || depName == "logistics") && (
+              {(depName == finance || depName == logistic) && (
                 <Link to="reques_proposals" className={classcss} onClick={() => setclicked(1)}>
                   Requests
                 </Link>
@@ -69,6 +73,13 @@ function Menus() {
               >
                 Courses
               </Link>
+              {depName==humanResource&&<Link
+                className={classcss}
+                to={`/${params.id}/menu/summary`}
+                onClick={()=>{ setVisisble(false) }}
+              >
+                Summary
+              </Link>}
               <Link
                 className={classcss}
                 to={`/${params.id}/menu/reports`}
@@ -92,6 +103,7 @@ function Menus() {
               <Route path="/proposals" element={<ProposalForm theU={user}/>} />
               <Route path="/reques_proposals" element={<NullSP theU={user}/>} />
               <Route path="/profile" element={<Profile  theU={user}/>} />
+              {depName==humanResource&&<Route path="/summary/*" element={<Summary  theU={user}/>} />}
               <Route path="/reports" element={<Reports  theU={user}/>} />
             </Routes>
           </div>

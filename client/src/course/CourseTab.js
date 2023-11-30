@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import CourseTable from "./CourseTable";
 import CourseDetails from "./CourseDetail";
 import { Link, Route, Routes } from "react-router-dom";
-import CourseSummary from "./TraineeSummary";
+import CourseSummary from "./ttCourse/summary/Summary";
 import Attendance from "./attendance/Attendance";
 
 function CourseTab(user) {

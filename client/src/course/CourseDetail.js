@@ -1,11 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, Route, Routes, useNavigate } from "react-router-dom";
-import CourseSummary from "./TraineeSummary";
 import Attendance from "./attendance/Attendance";
 import Grade from "./grade/Grade";
 import SelectedCourse from "./SelectedCourse";
 import Settings from "../courseSettings/Settings";
-import TraineeSummary from "./TraineeSummary";
 import Certification from "./certification/Certifcation";
 
 function CourseDetails(course) {
@@ -67,7 +65,7 @@ function CourseDetails(course) {
             Settings
           </Link>
         )}
-        {!course.courseD.Course?.courseStatus && (
+        {/* {!course.courseD.Course?.courseStatus && (
           <Link
             to={`${course.courseD.Course?.id}/summary`}
             className={
@@ -76,7 +74,7 @@ function CourseDetails(course) {
           >
             Summary
           </Link>
-        )}
+        )} */}
         {!course.courseD.Course?.courseStatus && (course.theU.user.userType.toLowerCase()=='director')&& (
           <Link
             to={`${course.courseD.Course?.id}/certifcation`}
@@ -120,12 +118,12 @@ function CourseDetails(course) {
             element={<Settings theU={course.theU} courseT={course.courseD} />}
           />
         )}
-        {!course.courseD.Course?.courseStatus && (
+        {/* {!course.courseD.Course?.courseStatus && (
           <Route
             path=":id/summary"
             element={<TraineeSummary theU={course.theU} courseT={course.courseD} />}
           />
-        )}
+        )} */}
         {!course.courseD.Course?.courseStatus && (course.theU.user.userType.toLowerCase()=='director')&& (
           <Route
             path=":id/certifcation"

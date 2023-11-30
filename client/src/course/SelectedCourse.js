@@ -6,7 +6,7 @@ import "react-circular-progressbar/dist/styles.css";
 import FacilitatorPopUp from "./facilitator/Facilitator";
 import Cookies from "js-cookie";
 import { useParams } from "react-router-dom";
-import TraineeSummary from "./TraineeSummary";
+import TraineeSummary from "./ttCourse/summary/Summary";
 import axios from "axios";
 
 function SelectedCourse(user) {
@@ -143,14 +143,14 @@ function SelectedCourse(user) {
                   isActive={course?.courseStatus}
                   noFacilitators={setFacilitators}
                 />
-                {!user.theU.user.CPDId&&!course?.Proposal.CPDId && (
+                {/* {!user.theU.user.CPDId&&!course?.Proposal.CPDId && (
                   <button
                     onClick={requestHandler}
                     className="mt-2 place-self-start text-md border-2 border-tenPer text-tenPer py-2 px-6 rounded-md"
                   >
                     Request for Conductor
                   </button>
-                )}
+                )} */}
               </div>
             </div>
           </div>
